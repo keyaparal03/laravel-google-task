@@ -1,8 +1,7 @@
 <?php
 
 use App\Http\Controllers\GoogleController;
-use App\Livewire\TaskComponent;
-use App\Livewire\TaskList;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,5 +66,14 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
-Route::get('/add-task', TaskComponent::class);
-Route::get('/task-list', TaskList::class);
+
+Route::post('/add-tasklist', [TaskController::class, 'addTask'])->name('addTask');
+Route::get('/add-tasklist', [TaskController::class, 'addTaskList']);
+
+Route::post('/add-task-to-list', [TaskController::class, 'saveTaskToList'])->name('saveTaskToList');
+Route::get('/add-task-to-list/{tasklistid}', [TaskController::class, 'addTaskToList']);
+
+
+
+Route::get('/tasklists', [TaskController::class, 'index']);
+Route::get('/tasklist/{tasklistid}', [TaskController::class, 'tasklist']);
