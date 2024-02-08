@@ -69,11 +69,17 @@ Route::middleware([
 
 Route::post('/add-tasklist', [TaskController::class, 'addTask'])->name('addTask');
 Route::get('/add-tasklist', [TaskController::class, 'addTaskList']);
+Route::get('/delete-tasklist', [TaskController::class, 'deleteTask']);
+
+
+
+Route::post('/update-task-to-list', [TaskController::class, 'updateTask'])->name('updateTask');
+Route::get('/update-task-to-list/{tasklistid}/{taskid}', [TaskController::class, 'update_task']);
 
 Route::post('/add-task-to-list', [TaskController::class, 'saveTaskToList'])->name('saveTaskToList');
 Route::get('/add-task-to-list/{tasklistid}', [TaskController::class, 'addTaskToList']);
 
 
-
 Route::get('/tasklists', [TaskController::class, 'index']);
 Route::get('/tasklist/{tasklistid}', [TaskController::class, 'tasklist']);
+

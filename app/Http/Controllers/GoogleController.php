@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 use Laravel\Socialite\Facades\Socialite;
 use Exception;
 use App\Models\User;
-use Google_Client;
-use Google_Service_Tasks;
-use Google_Service_Tasks_Task;
 use Illuminate\Support\Facades\Auth;
 
 class GoogleController extends Controller
