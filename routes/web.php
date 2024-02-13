@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TasklistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -82,4 +83,15 @@ Route::get('/add-task-to-list/{tasklistid}', [TaskController::class, 'addTaskToL
 
 Route::get('/tasklists', [TaskController::class, 'index']);
 Route::get('/tasklist/{tasklistid}', [TaskController::class, 'tasklist']);
+
+
+Route::get('/updatetasklists', [TasklistController::class, 'updateTaskList']);
+Route::get('/completedtaskList', [TasklistController::class, 'completedTaskList']);
+Route::get('/starredtasklist', [TasklistController::class, 'starredTaskList']);
+Route::get('/addduedatetasklist', [TasklistController::class, 'addDueDateTaskList']);
+
+
+
+
+
 

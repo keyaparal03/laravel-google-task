@@ -44,7 +44,7 @@
                 </x-button>
                 @php
                 //https://www.googleapis.com/auth/tasks', 'https://www.googleapis.com/auth/another.scope
-                $login_url = 'https://accounts.google.com/o/oauth2/v2/auth?scope=' . urlencode('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/tasks.readonly') . '&redirect_uri=' . urlencode(env('GMAIL_REDIRECT') ) . '&response_type=code&client_id=' . env('GMAIL_CLIENT_ID')  . '&access_type=online';
+                $login_url = 'https://accounts.google.com/o/oauth2/v2/auth?scope=' . urlencode('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/tasks.readonly') . '&redirect_uri=' . urlencode(env('GMAIL_REDIRECT') ) . '&response_type=code&client_id=' . env('GMAIL_CLIENT_ID')  . '&access_type=offline&prompt=consent';
                 
                 @endphp
                 <a href="<?= $login_url ?>"  style="margin-top: 0px !important;background: #C84130;color: #ffffff;padding: 8px;border-radius:6px;" class="ml-2">Login with Google Custom</a>

@@ -23,7 +23,7 @@ class TaskController extends Controller
             // Add other task properties as needed
         ];
 
-        $access_token = Auth::user()->access_token;
+        $access_token = getAccessToken();
 
         $server_output = guzzle_post(
             "https://tasks.googleapis.com/tasks/v1/users/@me/lists",
@@ -43,7 +43,7 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $access_token = Auth::user()->access_token;
+        $access_token = getAccessToken();
         //
         $server_output = guzzle_get('https://tasks.googleapis.com/tasks/v1/users/@me/lists', ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]);
 
@@ -57,13 +57,14 @@ class TaskController extends Controller
         return view('task-list');
     }
     public function tasklist($tasklistid){
-       echo $access_token = Auth::user()->access_token;
+       echo $access_token = getAccessToken();
         //
         $server_output = guzzle_get('https://www.googleapis.com/tasks/v1/users/@me/lists/'.$tasklistid, ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]);
 
         //  print_r($server_output);
            
         //     $server_output = json_decode($server_output, true);
+        //// updated order
             echo '<pre>';
             print_r($server_output);
             echo '</pre>';
@@ -77,6 +78,31 @@ class TaskController extends Controller
             //     $server_output = json_decode($server_output, true);
                 echo '<pre>';
                 print_r($server_output);
+               
+
+                echo "<br>After order google task list by date";// updated order
+                usort($server_output['items'], function ($task1, $task2) {
+                    $dueDate1 = isset($task1['updated']) ? strtotime($task1['updated']) : 0;
+                    $dueDate2 = isset($task2['updated']) ? strtotime($task2['updated']) : 0;
+                
+                    return $dueDate1 - $dueDate2;
+                });
+                
+                print_r($server_output['items']);
+
+
+                // echo "<br>After order google task list by title"; //Working
+                // usort($server_output['items'], function ($task1, $task2) {
+                //     $title1 = isset($task1['title']) ? $task1['title'] : '';
+                //     $title2 = isset($task2['title']) ? $task2['title'] : '';
+
+                //     return strcmp($title1, $title2);
+                // });
+
+                // print_r($server_output['items']);
+                // echo '</pre>';
+
+
                 echo '</pre>';
        
     }
@@ -115,7 +141,7 @@ class TaskController extends Controller
             // Add other task properties as needed
         ];
 
-        $access_token = Auth::user()->access_token;
+        $access_token = getAccessToken();
 
         $server_output = guzzle_post(
             "https://tasks.googleapis.com/tasks/v1/lists/".$task_id."/tasks",
@@ -229,28 +255,59 @@ class TaskController extends Controller
         print_r($movedTask);
     }
     public function deleteTask(Request $request){
+        try {
+            $taskListId = 'MTI5NzY2Nzc0MzE3ODczOTUxMjc6MDow'; // Replace with your actual task list ID
+            $taskId = 'bjNwek1yNmxsTUdqMkxCcQ'; // Replace with your actual task ID
 
-        $taskListId = 'MTI5NzY2Nzc0MzE3ODczOTUxMjc6MDow'; // Replace with your actual task list ID
-$taskId = 'bjNwek1yNmxsTUdqMkxCcQ'; // Replace with your actual task ID
+            $accessToken = Auth::user()->access_token; // Replace with your actual access token
 
-$accessToken = Auth::user()->access_token; // Replace with your actual access token
+            $client = new \GuzzleHttp\Client();
 
-$client = new \GuzzleHttp\Client();
+            $response = $client->delete(
+                "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
+                [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $accessToken,
+                    ],
+                ]
+            );
 
-$response = $client->delete(
-    "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
-    [
-        'headers' => [
-            'Authorization' => 'Bearer ' . $accessToken,
-        ],
-    ]
-);
+            if ($response->getStatusCode() == 204) {
+                echo "Task deleted successfully";
+            } else {
+                echo "Failed to delete task";
+            }
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            if ($e->getResponse()->getStatusCode() == 401) {
+               
+                $access_token = refreshAccessToken(Auth::user()->refresh_token);
+                $taskListId = 'MTI5NzY2Nzc0MzE3ODczOTUxMjc6MDow'; // Replace with your actual task list ID
+                $taskId = 'bjNwek1yNmxsTUdqMkxCcQ'; // Replace with your actual task ID
+    
+                $accessToken = $access_token; // Replace with your actual access token
+    
+                $client = new \GuzzleHttp\Client();
+    
+                $response = $client->delete(
+                    "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
+                    [
+                        'headers' => [
+                            'Authorization' => 'Bearer ' . $accessToken,
+                        ],
+                    ]
+                );
+    
+                if ($response->getStatusCode() == 204) {
+                    echo "Task deleted successfully";
+                } else {
+                    echo "Failed to delete task";
+                }
 
-if ($response->getStatusCode() == 204) {
-    echo "Task deleted successfully";
-} else {
-    echo "Failed to delete task";
-}
 
+            } else {
+                // Handle other exceptions
+                throw $e;
+            }
+        }
     }
 }
