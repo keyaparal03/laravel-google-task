@@ -310,4 +310,75 @@ class TaskController extends Controller
             }
         }
     }
+
+    public function completeTask(Request $request){
+        $taskListId = 'OXZmOWpUWFllcmFON01KSQ'; // Replace with your actual task list ID
+        $taskId = 'bjNwek1yNmxsTUdqMkxCcQ'; // Replace with your actual task ID
+    
+        $accessToken = getAccessToken(); // Replace with your actual access token
+    
+        $client = new \GuzzleHttp\Client();
+    
+        $taskData = [
+            'status' => 'completed',
+        ];
+    
+        $response = $client->patch(
+            "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $taskData,
+            ]
+        );
+    
+        $updatedTask = json_decode($response->getBody()->getContents(), true);
+    
+        print_r($updatedTask);
+    }
+    public function moveTaskToTop(Request $request){
+        $taskListId = 'OWF0SXdWTERKNHZxSTUzbQ'; // Replace with your actual task list ID
+        $taskId = 'alI0dmxfMkdEc3hweDlsNA'; // Replace with your actual task ID
+    
+        $accessToken = getAccessToken(); // Replace with your actual access token
+    
+        $client = new \GuzzleHttp\Client();
+    
+        $response = $client->post(
+            "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}/move",
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ],
+            ]
+        );
+    
+        $movedTask = json_decode($response->getBody()->getContents(), true);
+    
+        print_r($movedTask);
+    }
+    public function moveTaskToPosition(Request $request){
+        $taskListId = 'OXZmOWpUWFllcmFON01KSQ'; // Replace with your actual task list ID
+        $taskId = 'QjZiaGthRlFTSEpwaGVLeQ'; // Replace with your actual task ID 0
+        $previousTaskId = 'c3pZUVg3WENlak9EVjdIeQ'; // Replace with the ID of the task that 2 should be immediately before the moved task
+    
+        $accessToken = getAccessToken(); // Replace with your actual access token
+    
+        $client = new \GuzzleHttp\Client();
+    
+        $response = $client->post(
+            "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}/move?previous={$previousTaskId}",
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ],
+            ]
+        );
+    
+        $movedTask = json_decode($response->getBody()->getContents(), true);
+    
+        print_r($movedTask);
+    }
 }

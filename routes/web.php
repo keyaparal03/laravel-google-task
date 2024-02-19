@@ -84,13 +84,15 @@ Route::get('/add-task-to-list/{tasklistid}', [TaskController::class, 'addTaskToL
 Route::get('/tasklists', [TaskController::class, 'index']);
 Route::get('/tasklist/{tasklistid}', [TaskController::class, 'tasklist']);
 
+Route::get('/movetasktotop', [TaskController::class, 'moveTaskToTop']);
+Route::get('/movetasktoposition', [TaskController::class, 'moveTaskToPosition']);
+
 
 Route::get('/updatetasklists', [TasklistController::class, 'updateTaskList']);
 Route::get('/completedtaskList', [TasklistController::class, 'completedTaskList']);
 Route::get('/starredtasklist', [TasklistController::class, 'starredTaskList']);
 Route::get('/addduedatetasklist', [TasklistController::class, 'addDueDateTaskList']);
-
-
+Route::get('/deletetasklist', [TasklistController::class, 'deleteTaskList']);
 
 
 

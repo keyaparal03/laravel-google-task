@@ -92,8 +92,8 @@ class TasklistController extends Controller
        
     }
     public function starredTaskList(Request $request){
-        $taskId = 'QjZiaGthRlFTSEpwaGVLeQ'; // Replace with your actual task ID
-        $taskListId = 'OXZmOWpUWFllcmFON01KSQ'; // Replace with your actual task list ID
+        $taskId = 'STNWck9lcEpET0w3UExlMA'; // Replace with your actual task ID
+        $taskListId = 'OWF0SXdWTERKNHZxSTUzbQ'; // Replace with your actual task list ID
         $accessToken = getAccessToken(); // Replace with your actual access token
 
         $client = new \GuzzleHttp\Client();
@@ -111,7 +111,7 @@ class TasklistController extends Controller
         $task = json_decode($response->getBody()->getContents(), true);
 
         // Add "STARRED" to the notes field
-        $task['notes'] = isset($task['notes']) ? 'STARRED' : 'STARRED';
+        $task['notes'] = isset($task['notes']) ? 'starred' : 'starred';
 
         // Update the task
         $response = $client->put(
@@ -130,43 +130,67 @@ class TasklistController extends Controller
         print_r($updatedTask);
     }
     public function addDueDateTaskList(Request $request){
-            $taskId = 'c3pZUVg3WENlak9EVjdIeQ'; // Replace with your actual task ID
-            $taskListId = 'OXZmOWpUWFllcmFON01KSQ'; // Replace with your actual task list ID
-            $accessToken = getAccessToken(); // Replace with your actual access token
+        $taskId = 'c3pZUVg3WENlak9EVjdIeQ'; // Replace with your actual task ID
+        $taskListId = 'OXZmOWpUWFllcmFON01KSQ'; // Replace with your actual task list ID
+        $accessToken = getAccessToken(); // Replace with your actual access token
 
 
-            $dueDate = new DateTime('2024-02-15'); 
-            $client = new \GuzzleHttp\Client();
+        $dueDate = new DateTime('2024-02-15'); 
+        $client = new \GuzzleHttp\Client();
 
-            // Get the task
-$response = $client->get(
-    "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
-    [
-        'headers' => [
-            'Authorization' => 'Bearer ' . $accessToken,
-        ],
-    ]
-);
+        // Get the task
+        $response = $client->get(
+            "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ],
+            ]
+        );
 
-$task = json_decode($response->getBody()->getContents(), true);
+        $task = json_decode($response->getBody()->getContents(), true);
 
-// Add the due date to the task
-$task['due'] = $dueDate->format(DateTime::RFC3339);
+        // Add the due date to the task
+        $task['due'] = $dueDate->format(DateTime::RFC3339);
 
-// Update the task
-$response = $client->put(
-    "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
-    [
-        'headers' => [
-            'Authorization' => 'Bearer ' . $accessToken,
-            'Content-Type' => 'application/json',
-        ],
-        'json' => $task,
-    ]
-);
+        // Update the task
+            $response = $client->put(
+            "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $task,
+            ]
+        );
 
-$updatedTask = json_decode($response->getBody()->getContents(), true);
+        $updatedTask = json_decode($response->getBody()->getContents(), true);
 
-print_r($updatedTask);
+        print_r($updatedTask);
+    }
+
+    public function deleteTaskList(Request $request){
+        $taskListId = 'OXZmOWpUWFllcmFON01KSQ'; // Replace with your actual task list ID
+    
+        $accessToken = getAccessToken(); // Replace with your actual access token
+    
+        $client = new \GuzzleHttp\Client();
+    
+        $response = $client->delete(
+            "https://tasks.googleapis.com/tasks/v1/users/@me/lists/{$taskListId}",
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ],
+            ]
+        );
+    
+        if ($response->getStatusCode() == 204) {
+            echo "Task list deleted successfully";
+        } else {
+            echo "Failed to delete task list";
         }
     }
+}
+    
