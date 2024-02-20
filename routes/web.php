@@ -68,8 +68,8 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::post('/add-tasklist', [TaskController::class, 'addTask'])->name('addTask');
-Route::get('/add-tasklist', [TaskController::class, 'addTaskList']);
+// Route::post('/add-tasklist', [TaskController::class, 'addTask'])->name('addTask');
+//Route::get('/add-tasklist', [TaskController::class, 'addTaskList']);
 Route::get('/delete-tasklist', [TaskController::class, 'deleteTask']);
 
 
@@ -81,19 +81,43 @@ Route::post('/add-task-to-list', [TaskController::class, 'saveTaskToList'])->nam
 Route::get('/add-task-to-list/{tasklistid}', [TaskController::class, 'addTaskToList']);
 
 
-Route::get('/tasklists', [TaskController::class, 'index']);
+// Route::get('/tasklists', [TaskController::class, 'index']);
 Route::get('/tasklist/{tasklistid}', [TaskController::class, 'tasklist']);
 
 Route::get('/movetasktotop', [TaskController::class, 'moveTaskToTop']);
 Route::get('/movetasktoposition', [TaskController::class, 'moveTaskToPosition']);
 
 
-Route::get('/updatetasklists', [TasklistController::class, 'updateTaskList']);
+// Route::get('/updatetasklists', [TasklistController::class, 'updateTaskList']);
 Route::get('/completedtaskList', [TasklistController::class, 'completedTaskList']);
 Route::get('/starredtasklist', [TasklistController::class, 'starredTaskList']);
 Route::get('/addduedatetasklist', [TasklistController::class, 'addDueDateTaskList']);
 Route::get('/deletetasklist', [TasklistController::class, 'deleteTaskList']);
 
+// New
 
 
 
+Route::group(['middleware' => ['auth']], function () { 
+    
+    Route::get('/add-tasklist', [TasklistController::class, 'add']);
+    Route::post('/add-tasklist', [TasklistController::class, 'save'])->name('saveTask');
+
+    Route::get('/edit-tasklist/{id}', [TasklistController::class, 'edit']);
+    Route::post('/update-task', [TasklistController::class, 'update'])->name('updateTask');
+
+    Route::get('/tasklists', [TasklistController::class, 'lists'])->name('tasklists');
+    
+    Route::get('/delete-tasklist/{id}', [TasklistController::class, 'delete']);
+
+    Route::get('/view-tasklist/{id}', [TasklistController::class, 'view']);
+    Route::get('/tasklist/{id}/tasks', [TasklistController::class, 'tasks']);
+
+    
+    
+
+    
+
+    
+
+});

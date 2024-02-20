@@ -6,12 +6,14 @@
                 <span class="font-medium">{{ Session::get('message') }}</span>
             </div>
         @endif
-       
-    <div class="text-center m-5">
-        <button type="button" class="rounded-md bg-white/10 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20"> <a href="{{url('medicine-list')}}">Medicine List</a></button>
-    </div>
+        @php
+
+        //print_r($taskData);
+            
+        @endphp
+        
       
-    <form method="POST" action="{{ route('addTask') }}">
+    <form method="POST" action="{{ route('updateTask') }}">
     @csrf
 
         
@@ -19,21 +21,22 @@
             <div class="grid grid-cols-6 gap-6">
                 <div class="col-span-6">
                     
-                    <h1 class="text-white dark:text-gray-200 text-2xl font-semibold text-center">Add Task</h1>
+                    <h1 class="text-white dark:text-gray-200 text-2xl font-semibold text-center">Edit Task list</h1>
                 </div>
                 
                 <div class="col-span-6">
                     <label class="block font-medium text-sm text-gray-700 dark:text-gray-300" for="name">
-                        Task name
+                        TaskList name
                     </label>
-                    <input class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full" id="taking_it_for" name="task_name" autocomplete="off">
+                    <input class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full" id="" name="task_name" value="{{$taskData['title']}}" autocomplete="off">
                     <div class="text-red-600">@error('task_name') {{ $message }} @enderror</div>
+                    <input type="hidden" name="id" value="{{$taskData['id']}}">
                 </div>
 
                 
                 <div class="col-span-6">
                     <button type="submit" class="rounded-md bg-white/10 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20">
-                        Add Task
+                        Update Tasklist
                     </button>
                 </div>
 
