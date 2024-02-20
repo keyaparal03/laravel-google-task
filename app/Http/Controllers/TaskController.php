@@ -14,12 +14,12 @@ class TaskController extends Controller
             'task_name' => 'required'
         ]);
 
-        echo $request->task_name;
+       
 
         
-        $taskListId = 'your-task-list-id'; // Replace with your actual task list ID
+        
         $taskData = [
-            'title' => 'Your task title',
+            'title' => $request->task_name,
             // Add other task properties as needed
         ];
 

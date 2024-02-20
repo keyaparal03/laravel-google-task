@@ -38,3 +38,5 @@
         </ul>
     @endif
 </div>
+
+@livewire('sortable-item')
