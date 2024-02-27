@@ -8,7 +8,17 @@
     </form>
 
 
-      
+    {{-- <div x-data="{ open: false, handleDragStart: () => window.livewire.emit('dragStarted') }" 
+        @dragstart="handleDragStart"
+        draggable="true">
+       <button @click="open = !open">Toggle</button>
+   
+       <div x-show="open">
+           Hello World!
+       </div>
+   </div> --}}
+
+
 <div wire:sortable="updateGroupOrder" wire:sortable-group="updateTaskOrder" style="display: flex;" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
     @foreach ($taskListData as $key => $value)
     
@@ -22,7 +32,7 @@
                <br/>
               
                 <button wire:click="toggleDiv('{{$value['tasklist']['id']}}')">Toggle Div</button>
-{{$showDiv}}
+
                 @if($showDiv==1 && $value['tasklist']['id']==$showDivId)
                     <form wire:submit.prevent="addTask({{$value['tasklist']['id']}}, $event.target.title.value)">
                         <input type="text" name="title">
@@ -34,7 +44,7 @@
            <div>
                <ul wire:sortable-group.item-group="{{$value['tasklist']['id']}}">
                    @foreach ($value['tasks'] as $task)
-                       <li wire:key="task-{{$task['id']}}" wire:sortable-group.item="{{$task['id']}}">
+                       <li wire:key="task-{{$task['id']}}" wire:sortable-group.item="{{$task['id']}}" wire:dragstart="handleDragStart('{{$value['tasklist']['id']}}','{{$task['id']}}')" class="taskdiv" id="myElement" draggable="true" taskid="{{$task['id']}}" >
                            <p wire:sortable-group.handle  class="mt-1 truncate text-bold leading-5 text-gray-500">{{$task['title']}} | {{$task['id']}}</p>
                            {{-- <button wire:click="removeTask({{$task['id']}})" class="rounded-md bg-white/10 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20">Remove</button> --}}
                             <span class="text-white">
@@ -52,13 +62,6 @@
 
      
    @endforeach
-   <script>
-    window.addEventListener('confirming-task-removal', event => {
-        if (confirm('Are you sure you want to delete this task?')) {
-            @this.call('removeTask', event.detail.taskId);
-        }
-    });
-    </script>
   
 </div>
     </div>

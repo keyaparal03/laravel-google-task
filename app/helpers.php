@@ -28,6 +28,20 @@ if (! function_exists('guzzle_post')) {
         return json_decode($response->getBody()->getContents(), true);
     }
 }
+if (! function_exists('guzzle_delete')) {
+    function guzzle_delete($url, $data = [], $headers = [])
+    {
+        $client = new \GuzzleHttp\Client([
+            'headers' => $headers
+        ]);
+
+        $response = $client->delete($url, [
+            'json' => $data
+        ]);
+
+        return json_decode($response->getBody()->getContents(), true);
+    }
+}
 if (! function_exists('refreshAccessToken')) {
     function refreshAccessToken($refreshToken) {
         $client = new \GuzzleHttp\Client();
