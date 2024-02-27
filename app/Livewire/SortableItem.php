@@ -58,43 +58,74 @@ class SortableItem extends Component
     {
         foreach ($data as $order => $item) {
 
-            if($item['value']==$this->movingTasklist) continue;
-           
-            foreach($item['items'] as $task)
+            if($item['value']==$this->movingTasklist)
             {
-            
-                if($task['value'] == $this->movingTaskid)
+                dd($item);
+            }
+            else{
+                foreach($item['items'] as $key => $task)
                 {
+                
+                    if($task['value'] == $this->movingTaskid)
+                    {
+                        $oldpossition = ($key==0) ? 0 : $key-1;
+                        
+                        $newTaskListid = $item['value'];
 
-                    dd($task);
+                        $access_token = getAccessToken();
+
+                        $server_output = guzzle_get("https://tasks.googleapis.com/tasks/v1/lists/".$this->movingTasklist."/tasks/".$this->movingTaskid, ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]);
+                
+                
                     
-                    $newTaskListid = $item['value'];
+                
+                        $server_output2 = guzzle_post(
+                            "https://tasks.googleapis.com/tasks/v1/lists/".$newTaskListid."/tasks",
+                            $server_output,
+                            ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
+                        );
+                        // dd( $server_output2);
+                        $client = new \GuzzleHttp\Client();
 
-                    $access_token = getAccessToken();
+                        $response = $client->delete('https://tasks.googleapis.com/tasks/v1/lists/' . $this->movingTasklist . '/tasks/' . $this->movingTaskid, [
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $access_token,
+                                'Accept' => 'application/json'
+                            ]
+                        ]);
 
-                    $server_output = guzzle_get("https://tasks.googleapis.com/tasks/v1/lists/".$this->movingTasklist."/tasks/".$this->movingTaskid, ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]);
-            
-            
-                    // $server_output3 = guzzle_delete("https://tasks.googleapis.com/tasks/v1/lists/".$this->movingTasklist."/tasks/".$this->movingTaskid, ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]);
-            
-                    $server_output2 = guzzle_post(
-                        "https://tasks.googleapis.com/tasks/v1/lists/".$newTaskListid."/tasks",
-                        $server_output,
-                        ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
-                    );
-
-                    $client = new \GuzzleHttp\Client();
-
-                    $response = $client->delete('https://tasks.googleapis.com/tasks/v1/lists/' . $this->movingTasklist . '/tasks/' . $this->movingTaskid, [
-                        'headers' => [
-                            'Authorization' => 'Bearer ' . $access_token,
-                            'Accept' => 'application/json'
-                        ]
-                    ]);
-
+                    
+                        if($item['items'][$oldpossition]['value']==$item['items'][$key]['value'])
+                        {
+                        //    echo "if";
+                    
+                            $response = $client->post(
+                                "https://tasks.googleapis.com/tasks/v1/lists/".$newTaskListid."/tasks/".$server_output2['id']."/move",
+                                [
+                                    'headers' => [
+                                        'Authorization' => 'Bearer ' . $access_token,
+                                    ],
+                                ]
+                            );
+                        
+                        }else{
+                            // echo "else";
+                            $response = $client->post(
+                                "https://tasks.googleapis.com/tasks/v1/lists/{$newTaskListid}/tasks/{$server_output2['id']}/move?previous={$item['items'][$oldpossition]['value']}",
+                                [
+                                    'headers' => [
+                                        'Authorization' => 'Bearer ' . $access_token,
+                                    ],
+                                ]
+                            );
+                        
+                        }
+                    }
                 }
             }
         }
+        // die;
+        
         $tasklistcontroller = new TasklistController();
             $tasklists =  $tasklistcontroller->lists();
             $taskListData = array();
