@@ -2,10 +2,11 @@
 use Illuminate\Support\Facades\Auth;
 
 if (! function_exists('guzzle_get')) {
-    function guzzle_get($url, $headers = [])
+    function guzzle_get($url, $headers = [],$query = [])
     {
         $client = new \GuzzleHttp\Client([
-            'headers' => $headers
+            'headers' => $headers,
+            'query' => $query
         ]);
 
         $response = $client->get($url);

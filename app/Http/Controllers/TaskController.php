@@ -6,6 +6,68 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 class TaskController extends Controller
 {
+
+    //add task list
+
+    public function add(Request $request)
+    {
+        dd($request);
+        //    "task_id" => "MTI5NzY2Nzc0MzE3ODczOTUxMjc6MDow"
+        //   "task_name" => "hgfhg"
+        // $validatedData = $request->validate([
+        //     'task_name' => 'required'
+        // ]);
+
+        // $task_id = $request->task_id;
+        // $task_name = $request->task_name;
+
+        
+        // $taskListId = 'your-task-list-id'; // Replace with your actual task list ID
+        // $taskData = [
+        //     'title' => $task_name,
+        //     // Add other task properties as needed
+        // ];
+
+        // $access_token = getAccessToken();
+
+        // $server_output = guzzle_post(
+        //     "https://tasks.googleapis.com/tasks/v1/lists/".$task_id."/tasks",
+        //     $taskData,
+        //     ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
+        // );
+
+        // echo '<pre>';
+        // print_r($server_output);
+        // echo '</pre>';
+
+
+
+        // $server_output1 = guzzle_post(
+        //     "https://tasks.googleapis.com/tasks/v1/lists/".$task_id."/tasks",
+        //     $server_output,
+        //     ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
+        // );
+
+        // echo '<pre>';
+        // print_r($server_output1);
+        // echo '</pre>';
+
+
+        // $server_output2 = guzzle_post(
+        //     "https://tasks.googleapis.com/tasks/v1/lists/WXN3V1c1UVV1bWVRWnpzSQ/tasks",
+        //     $server_output,
+        //     ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
+        // );
+
+        // echo '<pre>';
+        // print_r($server_output2);
+        // echo '</pre>';
+        // Handle the validated data...
+
+       // return redirect()->route('successPage');
+    }
+
+
     // In YourController
     public function addTaskList(Request $request)
     {
@@ -227,7 +289,7 @@ class TaskController extends Controller
     }
     public function movetask(Request $request)
     {
-         $taskListId = $request->tasklistid; // Replace with your actual task list ID
+        $taskListId = $request->tasklistid; // Replace with your actual task list ID
         $taskId = $request->taskid;// Replace with your actual task ID
 
         $moveData = [

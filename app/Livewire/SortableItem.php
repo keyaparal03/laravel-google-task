@@ -13,7 +13,14 @@ class SortableItem extends Component
     public $showDivId = '';
     public $movingTaskid;
     public $movingTasklist;
+    public $currenttasklist;
+    public $title;
 
+
+    // public function mount($value)
+    // {
+    //     $this->currenttasklist = $value['tasklist']['id'];
+    // }
     public function render()
     {
         try{
@@ -21,13 +28,20 @@ class SortableItem extends Component
             $tasklistcontroller = new TasklistController();
             $tasklists =  $tasklistcontroller->lists();
             $taskListData = array();
+
+           
+
             if(count($tasklists['tasklists']['items'])>0) : 
             
                 foreach($tasklists['tasklists']['items'] as $tasklist)
                 { 
                     $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                    $tasks  = $tasks['tasks']['items'];
+                    usort($tasks, function ($item1, $item2) {
+                        return $item1['position'] <=> $item2['position'];
+                    });
                     $taskListData[$tasklist['id']]['tasklist'] = $tasklist;
-                    $taskListData[$tasklist['id']]['tasks'] = $tasks['tasks']['items'];
+                    $taskListData[$tasklist['id']]['tasks'] = $tasks;
                 }
 
             endif;
@@ -44,23 +58,68 @@ class SortableItem extends Component
        
     }
    
-    public function handleDragStart($movingTasklist,$movingTaskid)
-    {
-       $this->movingTaskid = $movingTaskid;
-       $this->movingTasklist = $movingTasklist;
-       return true;
-    //  echo $this->movingTaskid;
-    //  echo "s";
-    //  die;
-        // This code will run when the drag operation starts...
-    }
+    // public function handleDragStart($movingTasklist,$movingTaskid)
+    // {
+    //    $this->movingTaskid = $movingTaskid;
+    //    $this->movingTasklist = $movingTasklist;
+    //    return true;
+    // //  echo $this->movingTaskid;
+    // //  echo "s";
+    // //  die;
+    //     // This code will run when the drag operation starts...
+    // }
     public function updateTaskOrder($data)
     {
+       
         foreach ($data as $order => $item) {
 
             if($item['value']==$this->movingTasklist)
             {
-                dd($item);
+                $access_token = getAccessToken();
+                foreach($item['items'] as $key => $task)
+                {
+                    
+                    if($task['value'] == $this->movingTaskid)
+                    { 
+                        $client = new \GuzzleHttp\Client();
+                        if($key == 0)
+                        {
+                            $response = $client->post(
+                                "https://tasks.googleapis.com/tasks/v1/lists/{$this->movingTasklist}/tasks/{$this->movingTaskid}/move",
+                                [
+                                    'headers' => [
+                                        'Authorization' => 'Bearer ' . $access_token,
+                                    ],
+                                ]
+                            );
+                        }
+                        else{
+                            // echo "movingTaskid = ".$this->movingTaskid;
+                            // echo '<br>';
+                            // echo "else";
+                            // echo '<br>';
+                            // echo "key = ".$key;
+                            // echo '<br>';
+                            // echo "peviouskey = ".$peviouskey = ($key==0) ? 0 : $key-1;
+                            // echo '<br>';
+                            // echo "value = ".$item['items'][$peviouskey]['value'];
+                            // echo '<br>';
+                            $peviouskey = ($key==0) ? 0 : $key-1;
+                            $response = $client->post(
+                                "https://tasks.googleapis.com/tasks/v1/lists/{$this->movingTasklist}/tasks/{$this->movingTaskid}/move?previous={$item['items'][$peviouskey]['value']}",
+                                [
+                                    'headers' => [
+                                        'Authorization' => 'Bearer ' . $access_token,
+                                    ],
+                                ]
+                            );
+                            $movedTask = json_decode($response->getBody()->getContents(), true);
+    
+                            // print_r($movedTask);
+                        }
+                    }
+                }
+            // die;
             }
             else{
                 foreach($item['items'] as $key => $task)
@@ -134,15 +193,21 @@ class SortableItem extends Component
                 foreach($tasklists['tasklists']['items'] as $tasklist)
                 { 
                     $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                    $tasks  = $tasks['tasks']['items'];
+                    usort($tasks, function ($item1, $item2) {
+                        return $item1['position'] <=> $item2['position'];
+                    });
                     $taskListData[$tasklist['id']]['tasklist'] = $tasklist;
-                    $taskListData[$tasklist['id']]['tasks'] = $tasks['tasks']['items'];
+                    $taskListData[$tasklist['id']]['tasks'] = $tasks;
                 }
-
             endif;
 
             // dd($taskListData);
-
+            // $this->emit('refreshComponent');
             return view('livewire.sortable-item',compact('taskListData'));
+
+            // return redirect()->to('/tasklists');
+        
         // die;
     }
     public function updateGroupOrder($data)
@@ -159,6 +224,17 @@ class SortableItem extends Component
     {
         echo "Level";
         dd($id);
+    }
+    public function addTask()
+    {
+        dd($_REQUEST);
+        echo $this->currenttasklist;
+       echo  $this->title;
+       
+        // / $tasklistcontroller = new TasklistController();
+        //$tasklists =  $tasklistcontroller->lists();
+       // dd($data);
+       die;
     }
     public function confirmTaskRemoval($taskId)
     {
