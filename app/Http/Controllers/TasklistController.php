@@ -14,13 +14,18 @@ class TasklistController extends Controller implements TaskListInterface
     {
         return view('add-tasklist');
     }
-    function save(Request $request)
+    function save($data)
     {
-        $validatedData = $request->validate([
-            'task_name' => 'required'
-        ]);
+        
+       // dd($data['title']);
+    //     dd("ddd");
+    //     die;
+    //     $validatedData = $request->validate([
+    //         'task_name' => 'required'
+    //     ]);
         $taskData = [
-            'title' => $request->task_name,
+            'title' => $data['title'],
+            'description' => $data['description'],
             // Add other task properties as needed
         ];
 
@@ -32,9 +37,14 @@ class TasklistController extends Controller implements TaskListInterface
             ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
         );
 
-        echo '<pre>';
-        print_r($server_output);
-        echo '</pre>';
+       
+
+
+        //return $server_output;
+
+    //     echo '<pre>';
+    //     print_r($server_output);
+    //     echo '</pre>';
     }
     function edit($id)
     {

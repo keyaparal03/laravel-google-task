@@ -6,6 +6,10 @@ use Livewire\Component;
 use App\Http\Controllers\TasklistController;
 
 use Exception;
+use Illuminate\Http\Request;
+
+
+
 
 class SortableItem extends Component
 {
@@ -17,6 +21,9 @@ class SortableItem extends Component
     public $listarray = [];
     public $task_name;
     public $showForm = true;
+    public $addlisttitle;
+    public $addlistdescription;
+
     protected $rules = [
         'task_name' => 'required',
     ];
@@ -214,10 +221,29 @@ class SortableItem extends Component
         // echo '<pre>';
         // dd($data);
     }
-    public function newGroupLabel()
+    public function addTaskList()
     {
-        echo "Level";
-        dd($_REQUEST);
+        
+        $data = array('title' => $this->addlisttitle, 'description' => $this->addlistdescription);
+       
+        $tasklistcontroller = new TasklistController();
+        $tasklistcontroller->save($data);
+        return redirect()->to('/tasklists');
+        // $tasklists =  $tasklistcontroller->lists();
+        //     // $taskListData = array();
+        //     if(count($tasklists['tasklists']['items'])>0) : 
+            
+        //         foreach($tasklists['tasklists']['items'] as $tasklist)
+        //         { 
+        //             $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+        //             $tasks  = $tasks['tasks']['items'];
+        //             usort($tasks, function ($item1, $item2) {
+        //                 return $item1['position'] <=> $item2['position'];
+        //             });
+        //             $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+        //             $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+        //         }
+        //     endif;
     }
     public function updatetaskListData()
     {
