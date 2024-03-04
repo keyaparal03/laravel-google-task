@@ -334,11 +334,11 @@ class TaskController extends Controller
                 ]
             );
 
-            if ($response->getStatusCode() == 204) {
-                echo "Task deleted successfully";
-            } else {
-                echo "Failed to delete task";
-            }
+            // if ($response->getStatusCode() == 204) {
+            //     return
+            // } else {
+            //     echo "Failed to delete task";
+            // }
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             if ($e->getResponse()->getStatusCode() == 401) {
                

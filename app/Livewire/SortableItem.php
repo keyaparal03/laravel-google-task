@@ -271,13 +271,9 @@ class SortableItem extends Component
     }
     public function addTask($id)
     {
-        
         // $task_name = $this->listarray['title_'.$id];
         
         $validatedData = $this->validate();
-        
-
-      
 
         $taskListId = $id; // Replace with your actual task list ID
         $taskData = [
@@ -297,6 +293,48 @@ class SortableItem extends Component
         $tasklistcontroller = new TasklistController();
             $tasklists =  $tasklistcontroller->lists();
             $taskListData = array();
+            if(count($tasklists['tasklists']['items'])>0) : 
+            
+                foreach($tasklists['tasklists']['items'] as $tasklist)
+                { 
+                    $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                    $tasks  = $tasks['tasks']['items'];
+                    usort($tasks, function ($item1, $item2) {
+                        return $item1['position'] <=> $item2['position'];
+                    });
+                    $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+                    $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+                }
+            endif;
+            $this->showForm = false;
+            $this->showForm = true;
+        // return redirect()->to('/tasklists');
+    }
+    public function deleteTask($taskListId,$taskId)
+    {
+           $access_token = getAccessToken(); // Replace with your actual access token
+
+            $client = new \GuzzleHttp\Client();
+
+            $response = $client->delete(
+                "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
+                [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $access_token,
+                    ],
+                ]
+            );
+
+            // if ($response->getStatusCode() == 204) {
+            //     echo "Task deleted successfully";
+            // } else {
+            //     echo "Failed to delete task";
+            // }
+
+        // $this->task_name = '';
+        $tasklistcontroller = new TasklistController();
+            $tasklists =  $tasklistcontroller->lists();
+            // $taskListData = array();
             if(count($tasklists['tasklists']['items'])>0) : 
             
                 foreach($tasklists['tasklists']['items'] as $tasklist)
