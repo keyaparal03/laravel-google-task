@@ -14,41 +14,48 @@ class SortableItem extends Component
     public $movingTaskid;
     public $movingTasklist;
     public $currenttasklist;
-    public $title;
+    public $listarray = [];
+    public $task_name;
+    public $showForm = true;
+    protected $rules = [
+        'task_name' => 'required',
+    ];
+    public $taskListData = array();
 
 
-    // public function mount($value)
-    // {
-    //     $this->currenttasklist = $value['tasklist']['id'];
-    // }
+    public function mount()
+    {
+        $tasklistcontroller = new TasklistController();
+        $tasklists =  $tasklistcontroller->lists();
+       
+
+       
+
+        if(count($tasklists['tasklists']['items'])>0) : 
+        
+            foreach($tasklists['tasklists']['items'] as $tasklist)
+            { 
+                $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                $tasks  = $tasks['tasks']['items'];
+                usort($tasks, function ($item1, $item2) {
+                    return $item1['position'] <=> $item2['position'];
+                });
+                // $this->listarray["title_".$tasklist['id']]  = '';
+
+                $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+                $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+            }
+
+        endif;
+        // $this->currenttasklist = $value['tasklist']['id'];
+    }
     public function render()
     {
         try{
 
-            $tasklistcontroller = new TasklistController();
-            $tasklists =  $tasklistcontroller->lists();
-            $taskListData = array();
+          
 
-           
-
-            if(count($tasklists['tasklists']['items'])>0) : 
-            
-                foreach($tasklists['tasklists']['items'] as $tasklist)
-                { 
-                    $tasks =  $tasklistcontroller->tasks($tasklist['id']);
-                    $tasks  = $tasks['tasks']['items'];
-                    usort($tasks, function ($item1, $item2) {
-                        return $item1['position'] <=> $item2['position'];
-                    });
-                    $taskListData[$tasklist['id']]['tasklist'] = $tasklist;
-                    $taskListData[$tasklist['id']]['tasks'] = $tasks;
-                }
-
-            endif;
-
-            // dd($taskListData);
-
-            return view('livewire.sortable-item',compact('taskListData'));
+            return view('livewire.sortable-item');
             
         } 
         catch(Exception $e) {
@@ -58,16 +65,8 @@ class SortableItem extends Component
        
     }
    
-    // public function handleDragStart($movingTasklist,$movingTaskid)
-    // {
-    //    $this->movingTaskid = $movingTaskid;
-    //    $this->movingTasklist = $movingTasklist;
-    //    return true;
-    // //  echo $this->movingTaskid;
-    // //  echo "s";
-    // //  die;
-    //     // This code will run when the drag operation starts...
-    // }
+  
+   
     public function updateTaskOrder($data)
     {
        
@@ -197,14 +196,14 @@ class SortableItem extends Component
                     usort($tasks, function ($item1, $item2) {
                         return $item1['position'] <=> $item2['position'];
                     });
-                    $taskListData[$tasklist['id']]['tasklist'] = $tasklist;
-                    $taskListData[$tasklist['id']]['tasks'] = $tasks;
+                    $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+                    $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
                 }
             endif;
 
             // dd($taskListData);
             // $this->emit('refreshComponent');
-            return view('livewire.sortable-item',compact('taskListData'));
+            return view('livewire.sortable-item');
 
             // return redirect()->to('/tasklists');
         
@@ -220,21 +219,100 @@ class SortableItem extends Component
         echo "Level";
         dd($_REQUEST);
     }
+    public function updatetaskListData()
+    {
+        $tasklistcontroller = new TasklistController();
+        $tasklists =  $tasklistcontroller->lists();
+        $taskListData = array();
+        if(count($tasklists['tasklists']['items'])>0) : 
+        
+            foreach($tasklists['tasklists']['items'] as $tasklist)
+            { 
+                $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                $tasks  = $tasks['tasks']['items'];
+                usort($tasks, function ($item1, $item2) {
+                    return $item1['position'] <=> $item2['position'];
+                });
+                $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+                $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+            }
+        endif;
+    }
+    public function update($field, $value)
+{
+    // Access the value of a variable
+    $tasklistcontroller = new TasklistController();
+    $tasklists =  $tasklistcontroller->lists();
+    $taskListData = array();
+    if(count($tasklists['tasklists']['items'])>0) : 
+    
+        foreach($tasklists['tasklists']['items'] as $tasklist)
+        { 
+            $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+            $tasks  = $tasks['tasks']['items'];
+            usort($tasks, function ($item1, $item2) {
+                return $item1['position'] <=> $item2['position'];
+            });
+            $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+            $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+        }
+    endif;
+
+    // Your custom logic here...
+
+    // Call the parent update method to maintain the default behavior
+    parent::update($field, $value);
+}
+   
     public function removeTask($id)
     {
         echo "Level";
         dd($id);
     }
-    public function addTask()
+    public function addTask($id)
     {
-        dd($_REQUEST);
-        echo $this->currenttasklist;
-       echo  $this->title;
-       
-        // / $tasklistcontroller = new TasklistController();
-        //$tasklists =  $tasklistcontroller->lists();
-       // dd($data);
-       die;
+        
+        // $task_name = $this->listarray['title_'.$id];
+        
+        $validatedData = $this->validate();
+        
+
+      
+
+        $taskListId = $id; // Replace with your actual task list ID
+        $taskData = [
+            'title' => $this->task_name,
+            // Add other task properties as needed
+        ];
+
+        $access_token = getAccessToken();
+
+        $server_output = guzzle_post(
+            "https://tasks.googleapis.com/tasks/v1/lists/".$taskListId."/tasks",
+            $taskData,
+            ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
+        );
+
+        $this->task_name = '';
+        $tasklistcontroller = new TasklistController();
+            $tasklists =  $tasklistcontroller->lists();
+            $taskListData = array();
+            if(count($tasklists['tasklists']['items'])>0) : 
+            
+                foreach($tasklists['tasklists']['items'] as $tasklist)
+                { 
+                    $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                    $tasks  = $tasks['tasks']['items'];
+                    usort($tasks, function ($item1, $item2) {
+                        return $item1['position'] <=> $item2['position'];
+                    });
+                    $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+                    $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+                }
+            endif;
+            $this->showForm = false;
+            $this->showForm = true;
+        // return redirect()->to('/tasklists');
     }
     public function confirmTaskRemoval($taskId)
     {

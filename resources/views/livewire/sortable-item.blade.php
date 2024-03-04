@@ -23,7 +23,7 @@
         <input type="hidden" id="movingTaskid" wire:model="movingTaskid">
         
 
-        <div wire:sortable="updateGroupOrder" wire:sortable-group="updateTaskOrder" style="display: flex;" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div wire:poll.10s wire:sortable="updateGroupOrder" wire:sortable-group="updateTaskOrder" style="display: flex;" class="grid grid-cols-1 gap-4 sm:grid-cols-3" >
             @foreach ($taskListData as $key => $value)
             
             
@@ -42,18 +42,21 @@
                           </button>
 
                         {{-- @if($showDiv==1 && $value['tasklist']['id']==$showDivId) --}}
+                        @if($showForm)
                         <div x-show="open">
-                            <form wire:submit.prevent="addTask()">
-                                <input type="text" name="title" wire:model="currenttasklist" value="{{$value['tasklist']['id']}}">
-                                <input type="text" name="title" wire:model="title">
-                    
-                                <button>Add Task</button>
+                            <form wire:submit.prevent="addTask('{{$value['tasklist']['id']}}')">
+                                <input type="text" name="title"  wire:model="task_name"></br>
+                                @error('task_name') <span class="mt-2 text-sm text-red-600" style="display: block">{{ $message }}</span> @enderror
+                               
+                                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"  @click="open = false">Add Task</button>
                             </form>
                         </div>
+                        @endif
                         {{-- @endif --}}
                 </div>
                 <div>
-                    <ul wire:sortable-group.item-group="{{$value['tasklist']['id']}}"  wire:ignore>
+                    {{-- wire:ignore --}}
+                    <ul wire:sortable-group.item-group="{{$value['tasklist']['id']}}">
                         @foreach ($value['tasks'] as $task)
                             {{-- <li wire:key="task-{{$task['id']}}" wire:sortable-group.item="{{$task['id']}}" wire:dragstart="handleDragStart('{{$value['tasklist']['id']}}','{{$task['id']}}')" class="taskdiv" id="myElement" draggable="true" taskid="{{$task['id']}}" id="draggableElement" custom-attr="customValue" draggable="true" @dragstart="handleDragStart($event)"> --}}
                                 
