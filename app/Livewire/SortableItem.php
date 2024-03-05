@@ -264,31 +264,31 @@ class SortableItem extends Component
             }
         endif;
     }
-    public function update($field, $value)
-{
-    // Access the value of a variable
-    $tasklistcontroller = new TasklistController();
-    $tasklists =  $tasklistcontroller->lists();
-    $taskListData = array();
-    if(count($tasklists['tasklists']['items'])>0) : 
+//     public function update($field, $value)
+// {
+//     // Access the value of a variable
+//     $tasklistcontroller = new TasklistController();
+//     $tasklists =  $tasklistcontroller->lists();
+//     $taskListData = array();
+//     if(count($tasklists['tasklists']['items'])>0) : 
     
-        foreach($tasklists['tasklists']['items'] as $tasklist)
-        { 
-            $tasks =  $tasklistcontroller->tasks($tasklist['id']);
-            $tasks  = $tasks['tasks']['items'];
-            usort($tasks, function ($item1, $item2) {
-                return $item1['position'] <=> $item2['position'];
-            });
-            $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
-            $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
-        }
-    endif;
+//         foreach($tasklists['tasklists']['items'] as $tasklist)
+//         { 
+//             $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+//             $tasks  = $tasks['tasks']['items'];
+//             usort($tasks, function ($item1, $item2) {
+//                 return $item1['position'] <=> $item2['position'];
+//             });
+//             $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+//             $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+//         }
+//     endif;
 
-    // Your custom logic here...
+//     // Your custom logic here...
 
-    // Call the parent update method to maintain the default behavior
-    parent::update($field, $value);
-}
+//     // Call the parent update method to maintain the default behavior
+//     parent::update($field, $value);
+// }
    
     public function removeTask($id)
     {

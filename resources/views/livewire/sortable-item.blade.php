@@ -24,10 +24,8 @@
                                     <textarea  wire:model="addlistdescription" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="3" cols="" placeholder="Add description" maxlength="4095" data-is-auto-expanding="true" data-min-rows="3"></textarea>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <input type="submit" value="Add Task Group" class="border bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                    {{-- <button class="border bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                                        Add Task Group
-                                    </button> --}}
+                                    <input type="submit" value="Add Task Group" class="border bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                  
                                 </div>
                             </form>
                         </div>
@@ -63,20 +61,28 @@
             @foreach ($taskListData as $key => $value)
             
             
-            <div wire:key="group-{{$value['tasklist']['id']}}" wire:sortable.item="{{$value['tasklist']['id']}}" style="display: flex; flex-direction: column;" class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700"  x-data="{ open: false }">
+            <div wire:key="group-{{$value['tasklist']['id']}}" wire:sortable.item="{{$value['tasklist']['id']}}" style="display: flex; flex-direction: column;" class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 list"  x-data="{ open: false }">
                 <div>
-                    <h4 wire:sortable.handle  class="mt-1 truncate text-bold leading-5 text-gray-500">{{$value['tasklist']['title']}} <div x-data="{ open: false }">
-                        <button @click="open = !open"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-                          </svg>
-                          </button>
-                    
-                        <ul x-show="open" @click.away="open = false" class="absolute bg-white shadow overflow-hidden rounded w-64 mt-2 py-1 right-0 z-10">
-                            <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Option 1</a></li>
-                            <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Option 2</a></li>
-                            <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Option 3</a></li>
-                        </ul>
-                    </div></h4>
+                    <div class="titlewrap">
+                        <div class="listtitle">
+                        <h4 wire:sortable.handle  class="mt-1 truncate text-bold leading-5 text-gray-500">{{$value['tasklist']['title']}} </h4>
+                        </div>
+                        <div class="listedit">
+                            <div x-data="{ open: false }">
+                                <button @click="open = !open"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                                  </svg>
+                                  </button>
+                            
+                                <ul x-show="open" @click.away="open = false" class="absolute bg-white shadow overflow-hidden rounded w-64 mt-2 py-1 right-0 z-10">
+                                    <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Option 1</a></li>
+                                    <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Option 2</a></li>
+                                    <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Option 3</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                   
                     
                     <button wire:click="removeGroup({{$value['tasklist']['id']}})" class="rounded-md bg-white/10 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20">Remove</button>
                     
@@ -106,7 +112,7 @@
                         @foreach ($value['tasks'] as $task)
                           
                                 <li wire:key="task-{{$task['id']}}" wire:sortable-group.item="{{$task['id']}}" class="taskdiv" id="myElement" draggable="true" taskid="{{$task['id']}}" movingTasklist="{{$value['tasklist']['id']}}" movingTaskid="{{$task['id']}}" draggable="true" @dragstart="handleDragStart($event)">
-                                <p wire:sortable-group.handle  class="mt-1 truncate text-bold leading-5 text-gray-500">{{$task['title']}} | {{$task['id']}}</p>
+                                <p wire:sortable-group.handle  class="mt-1 truncate text-bold leading-5 text-gray-500">{{$task['title']}}</p>
                                 {{-- <button wire:click="removeTask({{$task['id']}})" class="rounded-md bg-white/10 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20">Remove</button> --}}
                                     <span class="text-white">
                                         <svg  wire:click="deleteTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -137,6 +143,33 @@
                 document.getElementById('movingTaskid').value = movingTaskid;
             }
         </script>
+
+  <style>
+    .listtitle {
+    color: #202124;
+    font-size: 14px;
+    line-height: 20px;
+    min-height: 20px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    letter-spacing: normal;
+    overflow: hidden;
+}
+
+.list {
+    border-color: #f1f3f4;
+    border-radius: 16px;
+    border-style: solid;
+    border-width: 1px;
+    flex-shrink: 1;
+    flex-grow: 1;
+    margin: 4px;
+    max-width: 680px;
+    min-width: 300px;
+    overflow: clip;
+}
+    
+ </style>
     </div>
   </div>
-  
