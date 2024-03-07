@@ -74,15 +74,13 @@
                                 </div>
                                 <div>
                                    
-                                    <h4 wire:sortable.handle @click="editform = !editform" class="mt-1 text-bold leading-5 text-white">
-                                    <span x-show="!focused">tt{{$value['tasklist']['title']}} </span>
-                                    <span x-show="focused">
-                                        pp{{ $inputValue }}
-                                    </span></h4>
-                           
-                                    <span></span>
+                                    {{-- <h4 wire:sortable.handle @click="editform = !editform" class="mt-1 text-bold leading-5 text-white">
+                                    {{-- <span>{{$inputs[$value['tasklist']['id']]}}</span> 
+                                </h4> --}}
+                                <h4> <input type="text"  @click="editform = !editform"  class="input_as_level" wire:model="inputs.{{$value['tasklist']['id']}}"  x-show="!editform">
+                                </h4>
                                     <form wire:submit.prevent="editTaskList('{{$value['tasklist']['id']}}')">
-                                        <input type="text" x-show="editform" class="form-edit-title" wire:model="inputValue" wire:blur="editTaskList('{{$value['tasklist']['id']}}')"  @focus="focused = false" @blur="focused = true; editform = false; editedtext = true">
+                                        <input type="text" x-show="editform" class="form-edit-title" wire:model="inputs.{{$value['tasklist']['id']}}" wire:blur="editTaskList('{{$value['tasklist']['id']}}')"  @focus="focused = false" @blur="focused = true; editform = false; editedtext = true">
                                         <!-- Other form fields... -->
                                     </form>
                                     
@@ -276,6 +274,22 @@ input.form-edit-title {
     background: none;
     border: navajowhite;
     border-bottom: 1px solid;
+}
+input.input_as_level {
+    background: none;
+    border: none;
+    color: #ffff;
+    margin: 0!important;
+    padding-left: 0px;
+}
+input.form-edit-title {
+    color: #fff;
+    border: navajowhite;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-color: none;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: none;
+    padding-left: 0px;
 }
  </style>
     </div>

@@ -30,7 +30,7 @@ class SortableItem extends Component
     public $taskListData = array();
 
     public $inputValue;
-    
+    public $inputs = [];
 
     public function submit()
     {
@@ -55,6 +55,7 @@ class SortableItem extends Component
                 });
                 //print_r($tasklist);
                 $this->listarray["title_".$tasklist['id']]  = $tasklist['title'];
+                $this->inputs[$tasklist['id']] = $tasklist['title'];
                 //dd($this->listarray);
                 $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
                 $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
@@ -299,9 +300,13 @@ class SortableItem extends Component
 
     public function editTaskList($id)
     {
-        $data = array('id' => $id, 'title' => $this->inputValue);
-        $tasklistcontroller = new TasklistController();
-        $status =  $tasklistcontroller->update($data);
+        if($this->inputs[$id]!='')
+        {
+            $data = array('id' => $id, 'title' => $this->inputs[$id]);
+            $tasklistcontroller = new TasklistController();
+            $status =  $tasklistcontroller->update($data);
+        }
+        
             $tasklists =  $tasklistcontroller->lists();
             $taskListData = array();
             if(count($tasklists['tasklists']['items'])>0) : 
