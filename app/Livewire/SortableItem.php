@@ -29,7 +29,13 @@ class SortableItem extends Component
     ];
     public $taskListData = array();
 
+    public $inputValue;
+    
 
+    public function submit()
+    {
+        // Your form submission logic...
+    }
     public function mount()
     {
         $tasklistcontroller = new TasklistController();
@@ -47,8 +53,9 @@ class SortableItem extends Component
                 usort($tasks, function ($item1, $item2) {
                     return $item1['position'] <=> $item2['position'];
                 });
-                // $this->listarray["title_".$tasklist['id']]  = '';
-
+                //print_r($tasklist);
+                $this->listarray["title_".$tasklist['id']]  = $tasklist['title'];
+                //dd($this->listarray);
                 $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
                 $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
             }
@@ -289,11 +296,52 @@ class SortableItem extends Component
 //     // Call the parent update method to maintain the default behavior
 //     parent::update($field, $value);
 // }
-   
-    public function removeTask($id)
+
+    public function editTaskList($id)
     {
-        echo "Level";
-        dd($id);
+        $data = array('id' => $id, 'title' => $this->inputValue);
+        $tasklistcontroller = new TasklistController();
+        $status =  $tasklistcontroller->update($data);
+            $tasklists =  $tasklistcontroller->lists();
+            $taskListData = array();
+            if(count($tasklists['tasklists']['items'])>0) : 
+            
+                foreach($tasklists['tasklists']['items'] as $tasklist)
+                { 
+                    $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                    $tasks  = $tasks['tasks']['items'];
+                    usort($tasks, function ($item1, $item2) {
+                        return $item1['position'] <=> $item2['position'];
+                    });
+                    $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+                    $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+                }
+            endif;
+        return view('livewire.sortable-item');
+    }
+    public function removeGroup($id)
+    {
+        $tasklistcontroller = new TasklistController();
+        $status =  $tasklistcontroller->delete($id);
+        $tasklists =  $tasklistcontroller->lists();
+        // $taskListData = array();
+        // if(count($tasklists['tasklists']['items'])>0) : 
+        
+        //     foreach($tasklists['tasklists']['items'] as $tasklist)
+        //     { 
+        //         $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+        //         $tasks  = $tasks['tasks']['items'];
+        //         usort($tasks, function ($item1, $item2) {
+        //             return $item1['position'] <=> $item2['position'];
+        //         });
+        //         $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+        //         $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+        //     }
+        // endif;
+        // return view('livewire.sortable-item');
+
+        return redirect()->to('/tasklists');
+        
     }
     public function addTask($id)
     {

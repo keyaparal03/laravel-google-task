@@ -66,7 +66,7 @@ class TasklistController extends Controller implements TaskListInterface
     
             $taskData = json_decode($response->getBody()->getContents(), true);
              
-            return view('edit-tasklist',compact('taskData'));
+            //return view('edit-tasklist',compact('taskData'));
         } 
         catch(Exception $e) {
             echo $e->getMessage();
@@ -74,17 +74,17 @@ class TasklistController extends Controller implements TaskListInterface
         }
         
     }
-    function update(Request $request)
+    function update($request)
     {
        
         try{
-            $validatedData = $request->validate([
-                'task_name' => 'required'
-            ]);
-            $taskListId = $request->id; // Replace with your actual task list ID
+            // $validatedData = $request->validate([
+            //     'task_name' => 'required'
+            // ]);
+            $taskListId = $request['id']; // Replace with your actual task list ID
 
             $taskListData = [
-                'title' => $request->task_name,
+                'title' => $request['title'],
                 // Add other task list properties as needed
             ];
             
@@ -105,11 +105,11 @@ class TasklistController extends Controller implements TaskListInterface
             
             $updatedTaskList = json_decode($response->getBody()->getContents(), true);
             
-            if ($response->getStatusCode() == 200) {
-                return redirect()->route('tasklists')->with('successmsg', 'Task List updated successfully');
-            } else {
-                return redirect()->route('tasklists')->with('errormsg', 'Failed to update task list');
-            }
+            // if ($response->getStatusCode() == 200) {
+            //     return redirect()->route('tasklists')->with('successmsg', 'Task List updated successfully');
+            // } else {
+            //     return redirect()->route('tasklists')->with('errormsg', 'Failed to update task list');
+            // }
         } 
         catch(Exception $e) {
             echo $e->getMessage();
@@ -134,11 +134,12 @@ class TasklistController extends Controller implements TaskListInterface
                 ]
             );
         
-            if ($response->getStatusCode() == 204) {
-                return redirect()->route('tasklists')->with('successmsg', 'Task List deleted successfully');
-            } else {
-                return redirect()->route('tasklists')->with('errormsg', 'Failed to delete task list');
-            }
+            // if ($response->getStatusCode() == 204) {
+            //     return true;
+            //     // return redirect()->route('tasklists')->with('successmsg', 'Task List deleted successfully');
+            // } else {
+            //    return false;
+            // }
         } 
         catch(Exception $e) {
             echo $e->getMessage();
