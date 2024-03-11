@@ -8,15 +8,20 @@
             </button>
         
             <div x-show="open" @click.away="open = false" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0 taskaddpopup">
                     <!-- Background overlay, show/hide based on modal state. -->
-                    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                    <div class="fixed inset-0 bg-transparent bg-opacity-75 transition-opacity" aria-hidden="true"></div>
         
                     <!-- This element is to trick the browser into centering the modal contents. -->
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        
+                    
+
                     <!-- Modal Content -->
                     <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                        <button  @click="open = false" class="close-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                          </svg>
+                          </button>
                         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <form wire:submit="addTaskList" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
                                 <div class="mb-4">
@@ -131,10 +136,17 @@
                         <ul wire:sortable-group.item-group="{{$value['tasklist']['id']}}">
                             @foreach ($value['tasks'] as $task)
                             
-                                    <li wire:key="task-{{$task['id']}}" wire:sortable-group.item="{{$task['id']}}" class="taskdiv" id="myElement" draggable="true" taskid="{{$task['id']}}" movingTasklist="{{$value['tasklist']['id']}}" movingTaskid="{{$task['id']}}" draggable="true" @dragstart="handleDragStart($event)">
+                                    <li wire:key="task-{{$task['id']}}" wire:sortable-group.item="{{$task['id']}}" class="taskdiv" id="myElement" draggable="true" taskid="{{$task['id']}}" movingTasklist="{{$value['tasklist']['id']}}" movingTaskid="{{$task['id']}}" draggable="true" @dragstart="handleDragStart($event)" x-data="{ open_: false,editform_:false,focused_: false,editedtext_:false }">
+                                           
                                         <div class="each-task">
                                             <div class="task-title-wrap">
-                                                <p wire:sortable-group.handle  class="mt-1 text-bold leading-5 text-white">{{$task['title']}}</p>
+                                                <p wire:sortable-group.handle  class="mt-1 text-bold leading-5 text-white"><textarea type="text" class="input_as_level" wire:model="inputsTasktitle.{{$task['id']}}" @click="open_ = true" x-show="!open_"></textarea></p>
+                                                <div>
+                                                    <textarea class="form-edit-task-title" wire:model="inputsTasktitle.{{$task['id']}}" wire:blur="editTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" x-show="open_"  @blur="open_ = false;"></textarea>
+                                                    {{-- <textarea class="form-edit-task-title" placeholder="details" x-show="open_"  @blur="open_ = false;"></textarea> --}}
+
+                                                    <!-- Other form fields... -->
+                                                </div>
                                             </div>
                                             <div class="tasklistedit">
                                                 <div x-data="{ open: false }">
@@ -145,7 +157,7 @@
                                                 
                                                     <ul x-show="open" @click.away="open = false" class="task-option absolute bg-white shadow overflow-hidden rounded w-64 mt-2 py-1 right-0 z-10">
                                                         <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"> <button wire:click="deleteTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" class="rounded-md bg-white/10 px-2.5 py-1.5 text-sm font-semibold shadow-sm ">Remove</button></a></li>
-                                                        <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Option 2</a></li>
+                                                        <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"  @click="open_ = true;open = false;" >Edit</a></li>
                                                         <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Option 3</a></li>
                                                     </ul>
                                                 </div>
@@ -230,7 +242,7 @@ li.taskdiv {
     border-radius: 9px;
     color: #000;
     margin-bottom: 15px;
-    height: 30px;
+    height: 60px;
     margin-top: 15px;
 }
 .tasklist-option {
@@ -291,6 +303,25 @@ input.form-edit-title {
     --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)!important;
     --tw-ring-shadow: none!important;
     padding-left: 0px;
+}
+textarea.input_as_level {
+    background: none;
+    border: none;
+    resize: none;
+}
+button.close-icon {
+    right: 0!important;
+    position: absolute;
+    padding: 3px;
+}
+.taskaddpopup{
+    margin-top: 100px;
+}
+textarea.form-edit-task-title {
+    background: #303138;
+    border: none;
+    color: #ccc;
+    resize: none;
 }
  </style>
     </div>

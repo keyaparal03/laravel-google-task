@@ -8,7 +8,7 @@ use App\Http\Controllers\TasklistController;
 use Exception;
 use Illuminate\Http\Request;
 
-
+use Illuminate\Support\Facades\Auth;
 
 
 class SortableItem extends Component
@@ -31,6 +31,8 @@ class SortableItem extends Component
 
     public $inputValue;
     public $inputs = [];
+    public $inputsTasktitle= [];
+    
 
     public function submit()
     {
@@ -51,8 +53,13 @@ class SortableItem extends Component
                 $tasks =  $tasklistcontroller->tasks($tasklist['id']);
                 $tasks  = $tasks['tasks']['items'];
                 usort($tasks, function ($item1, $item2) {
+                   
                     return $item1['position'] <=> $item2['position'];
                 });
+                foreach($tasks as $task)
+                {
+                    $this->inputsTasktitle[$task['id']] = $task['title'];
+                }
                 //print_r($tasklist);
                 $this->listarray["title_".$tasklist['id']]  = $tasklist['title'];
                 $this->inputs[$tasklist['id']] = $tasklist['title'];
@@ -346,6 +353,48 @@ class SortableItem extends Component
         // return view('livewire.sortable-item');
 
         return redirect()->to('/tasklists');
+        
+    }
+    public function editTask($taskListId,$taskId)
+    {
+        
+        $taskData = [
+            'title' => $this->inputsTasktitle[$taskId],
+            "id" => $taskId,
+            // Add other task properties as needed
+        ];
+    
+        $accessToken = Auth::user()->access_token; // Replace with your actual access token
+        $url = "https://tasks.googleapis.com/tasks/v1/lists/$taskListId/tasks/$taskId"; 
+
+        $client = new \GuzzleHttp\Client();
+
+        $response = $client->put($url, [
+            'headers' => [
+                'Authorization' => 'Bearer '. $accessToken,
+            ],
+            'json' => $taskData,
+        ]);
+
+        $updatedTask = json_decode($response->getBody()->getContents(), true);
+        $tasklistcontroller = new TasklistController();
+
+        $tasklists =  $tasklistcontroller->lists();
+            $taskListData = array();
+            if(count($tasklists['tasklists']['items'])>0) : 
+            
+                foreach($tasklists['tasklists']['items'] as $tasklist)
+                { 
+                    $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                    $tasks  = $tasks['tasks']['items'];
+                    usort($tasks, function ($item1, $item2) {
+                        return $item1['position'] <=> $item2['position'];
+                    });
+                    $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+                    $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+                }
+            endif;
+        return view('livewire.sortable-item');
         
     }
     public function addTask($id)
