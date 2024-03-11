@@ -282,13 +282,14 @@ input.input_as_level {
     margin: 0!important;
     padding-left: 0px;
 }
+
 input.form-edit-title {
     color: #fff;
     border: navajowhite;
-    --tw-ring-offset-color: #fff;
-    --tw-ring-color: none;
-    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-    --tw-ring-shadow: none;
+    --tw-ring-offset-color: #fff!important;
+    --tw-ring-color: none!important;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)!important;
+    --tw-ring-shadow: none!important;
     padding-left: 0px;
 }
  </style>
