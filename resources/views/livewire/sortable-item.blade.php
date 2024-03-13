@@ -141,10 +141,53 @@
                                         <div class="each-task">
                                             <div class="task-title-wrap">
                                                 <p wire:sortable-group.handle  class="mt-1 text-bold leading-5 text-white"><textarea type="text" class="input_as_level" wire:model="inputsTasktitle.{{$task['id']}}" @click="open_ = true" x-show="!open_"></textarea></p>
-                                                <div>
-                                                    <textarea class="form-edit-task-title" wire:model="inputsTasktitle.{{$task['id']}}" wire:blur="editTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" x-show="open_"  @blur="open_ = false;"></textarea>
-                                                    {{-- <textarea class="form-edit-task-title" placeholder="details" x-show="open_"  @blur="open_ = false;"></textarea> --}}
-
+                                                <div wire:mouseout="editTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" @click.away="open_ = false"  x-show="open_">
+                                                    <textarea class="form-edit-task-title" wire:model="inputsTasktitle.{{$task['id']}}"></textarea>
+                                                    <textarea class="form-edit-task-title" placeholder="details" wire:model="inputsTaskDescription.{{$task['id']}}"></textarea>
+                                                    <div x-data="{ open: false }">
+                                                        <button class="add-tasklist-btn" @click="open = true"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                            </svg>
+                                                            <span>Add Task List</span>
+                                                        </button>
+                                                    
+                                                        <div x-show="open" @click.away="open = false" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                                                            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0 taskaddpopup">
+                                                                <!-- Background overlay, show/hide based on modal state. -->
+                                                                <div class="fixed inset-0 bg-transparent bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                                                    
+                                                                <!-- This element is to trick the browser into centering the modal contents. -->
+                                                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                                                                
+                                            
+                                                                <!-- Modal Content -->
+                                                                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                                                    <button  @click="open = false" class="close-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                                                      </svg>
+                                                                      </button>
+                                                                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                                                        <form wire:submit="addTaskList" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                                                                            <div class="mb-4">
+                                                                                <input  wire:model="addlisttitle"  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" value="" placeholder="Add title" autofocus="" maxlength="1023" autocomplete="off">
+                                                                            </div>
+                                                                            <div class="mb-6">
+                                                                                <textarea  wire:model="addlistdescription" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="3" cols="" placeholder="Add description" maxlength="4095" data-is-auto-expanding="true" data-min-rows="3"></textarea>
+                                                                            </div>
+                                                                            <div class="flex items-center justify-between">
+                                                                                <input type="submit" value="Add Task Group" class="border bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                                                              
+                                                                            </div>
+                                                                        </form>
+                                                                    </div>
+                                                                    {{-- <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                                                        <button type="button" @click="open = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                                                            Close
+                                                                        </button>
+                                                                    </div> --}}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <!-- Other form fields... -->
                                                 </div>
                                             </div>
