@@ -193,13 +193,19 @@ class TasklistController extends Controller implements TaskListInterface
     }
     function tasks($id)
     {
-       
         $accessToken = getAccessToken(); 
         $tasks = guzzle_get('https://tasks.googleapis.com/tasks/v1/lists/'.$id.'/tasks', ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $accessToken], ['maxResults' => 10,'orderBy' => 'position' ]);
        
         return view('tasks',compact('tasks'));
     }
    
+    function completedTasks($id)
+    {
+        $accessToken = getAccessToken(); 
+        $tasks = guzzle_get('https://tasks.googleapis.com/tasks/v1/lists/'.$id.'/tasks?showCompleted=true&showHidden=true&showDeleted=true', ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $accessToken], ['maxResults' => 10,'orderBy' => 'position' ]);
+       
+        return view('tasks',compact('tasks'));
+    }
 
 
 

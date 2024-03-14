@@ -66,8 +66,10 @@
         <div class="taskmainwrap">
             <div wire:poll.10s wire:sortable="updateGroupOrder" wire:sortable-group="updateTaskOrder" style="display: flex;" class="grid grid-cols-1 gap-4 sm:grid-cols-3" >
                 @foreach ($taskListData as $key => $value)
-                
-                
+            
+                @php
+                //    print_r($value['completedTasks']); 
+                @endphp
                 <div wire:key="group-{{$value['tasklist']['id']}}" wire:sortable.item="{{$value['tasklist']['id']}}" style="display: flex; flex-direction: column;" class="relative flex items-center space-x-3 rounded-lg bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 list"  x-data="{ open: false,editform:false,focused: false,editedtext:false }">
                     <div class="task-wrap">
                         <div class="titlewrap">
@@ -139,57 +141,42 @@
                                     <li wire:key="task-{{$task['id']}}" wire:sortable-group.item="{{$task['id']}}" class="taskdiv" id="myElement" draggable="true" taskid="{{$task['id']}}" movingTasklist="{{$value['tasklist']['id']}}" movingTaskid="{{$task['id']}}" draggable="true" @dragstart="handleDragStart($event)" x-data="{ open_: false,editform_:false,focused_: false,editedtext_:false }">
                                            
                                         <div class="each-task">
-                                            <div class="task-title-wrap">
-                                                <p wire:sortable-group.handle  class="mt-1 text-bold leading-5 text-white"><textarea type="text" class="input_as_level" wire:model="inputsTasktitle.{{$task['id']}}" @click="open_ = true" x-show="!open_"></textarea></p>
-                                                <div wire:mouseout="editTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" @click.away="open_ = false"  x-show="open_">
-                                                    <textarea class="form-edit-task-title" wire:model="inputsTasktitle.{{$task['id']}}"></textarea>
-                                                    <textarea class="form-edit-task-title" placeholder="details" wire:model="inputsTaskDescription.{{$task['id']}}"></textarea>
-                                                    <div x-data="{ open: false }">
-                                                        <button class="add-tasklist-btn" @click="open = true"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                            {{-- <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true" id="unchecked-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg> --}}
+                                            <div class="complete-task" wire:click="deleteTask('{{$value['tasklist']['id']}}','{{$task['id']}}')">
+                                                {{-- @if($task['status']='needsAction') --}}
+                                                    <span class="open-task">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="open-icon w-6 h-6">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                        </svg>
+                                                        <span class="done-task">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                             </svg>
-                                                            <span>Add Task List</span>
-                                                        </button>
+                                                        </span>
+                                                    </span>
+                                                {{-- @else --}}
                                                     
-                                                        <div x-show="open" @click.away="open = false" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                                            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0 taskaddpopup">
-                                                                <!-- Background overlay, show/hide based on modal state. -->
-                                                                <div class="fixed inset-0 bg-transparent bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                                                {{-- @endif --}}
+                                                
+                                            </div>
+                                           
+                                              
+                                            <div class="task-title-wrap">
+                                                <p wire:sortable-group.handle  class="mt-1 text-bold leading-5 text-white" @click="open_ = true" x-show="!open_"><input type="text" class="input_as_level" wire:model="inputsTasktitle.{{$task['id']}}"/>
+                                                    @if($inputsTaskNotes[$task['id']] !='')
+                                                    <span class="task-description"> {{ $inputsTaskNotes[$task['id']] }}</span>
+                                                    @endif
+                                                    @if($inputsTaskDueDateFormatted[$task['id']] !='')
                                                     
-                                                                <!-- This element is to trick the browser into centering the modal contents. -->
-                                                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                                                
-                                            
-                                                                <!-- Modal Content -->
-                                                                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                                                                    <button  @click="open = false" class="close-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                                                      </svg>
-                                                                      </button>
-                                                                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                                                        <form wire:submit="addTaskList" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                                                                            <div class="mb-4">
-                                                                                <input  wire:model="addlisttitle"  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" value="" placeholder="Add title" autofocus="" maxlength="1023" autocomplete="off">
-                                                                            </div>
-                                                                            <div class="mb-6">
-                                                                                <textarea  wire:model="addlistdescription" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="3" cols="" placeholder="Add description" maxlength="4095" data-is-auto-expanding="true" data-min-rows="3"></textarea>
-                                                                            </div>
-                                                                            <div class="flex items-center justify-between">
-                                                                                <input type="submit" value="Add Task Group" class="border bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                                                              
-                                                                            </div>
-                                                                        </form>
-                                                                    </div>
-                                                                    {{-- <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                                                        <button type="button" @click="open = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                                                            Close
-                                                                        </button>
-                                                                    </div> --}}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <!-- Other form fields... -->
-                                                </div>
+                                                    <span class="task-due"> {{ $inputsTaskDueDateFormatted[$task['id']] }}</span>
+                                                    @endif
+                                                </p>
+                                                <div @click.away="open_ = false"  x-show="open_" class="editformdiv">
+                                                    <textarea class="form-edit-task-title" wire:model="inputsTasktitle.{{$task['id']}}" wire:blur="editTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" ></textarea>
+                                                    <textarea class="form-edit-task-title" placeholder="details" wire:model="inputsTaskNotes.{{$task['id']}}" wire:blur="editTask('{{$value['tasklist']['id']}}','{{$task['id']}}')"></textarea>
+                                                    
+                                                    <input type="date"  wire:model="inputsTaskDueDate.{{$task['id']}}" class="bg-gray-800 text-white border-0 focus:ring-0" wire:change="editTaskDueDate('{{$value['tasklist']['id']}}','{{$task['id']}}')" value="{{ $inputsTaskDueDate[$task['id']] }}"/>
+                                                
                                             </div>
                                             <div class="tasklistedit">
                                                 <div x-data="{ open: false }">
@@ -276,6 +263,8 @@ main {
 }
 .task-wrap {
     width: 100%;
+    margin-left: -20px;
+    margin-right: -20px;
 }
 .task-second-wrap{
     width: 100%;
@@ -365,6 +354,53 @@ textarea.form-edit-task-title {
     border: none;
     color: #ccc;
     resize: none;
+}
+span.task-description {
+    display: inline-block;
+    /* font-style: italic; */
+    font-size: 13px;
+    color: #5f6368;
+}
+span.task-description {
+    display: inline-block;
+    /* font-style: italic; */
+    font-size: 13px;
+    color: #5f6368;
+}
+span.task-due {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: #27272B;
+    border: 1px #fff;
+    box-sizing: content-box;
+    height: 1rem;
+    padding: 3px 0px 6px 27px;
+    margin-right: 4px;
+    display: flex;
+    color: #2684FC;
+    font-size: 12px;
+    width: 93px;
+    border-radius: 22px;
+    width: 79px;
+}
+span.done-task, span.open-task {
+    cursor: pointer;
+}
+.complete-task {
+    display: flex;
+    width: 10%;
+    float: left;
+}
+.done-task {
+    display: none;
+}
+
+.open-task:hover .done-task {
+    display: inline;
+}
+.open-task:hover .open-icon {
+    display: none;
 }
  </style>
     </div>
