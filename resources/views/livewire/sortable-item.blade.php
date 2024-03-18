@@ -68,7 +68,7 @@
                 @foreach ($taskListData as $key => $value)
             
                 @php
-                //    print_r($value['completedTasks']); 
+                   print_r($value['completedTasks']); 
                 @endphp
                 <div wire:key="group-{{$value['tasklist']['id']}}" wire:sortable.item="{{$value['tasklist']['id']}}" style="display: flex; flex-direction: column;" class="relative flex items-center space-x-3 rounded-lg bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 list"  x-data="{ open: false,editform:false,focused: false,editedtext:false }">
                     <div class="task-wrap">

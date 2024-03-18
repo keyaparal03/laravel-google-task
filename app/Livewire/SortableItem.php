@@ -65,8 +65,10 @@ class SortableItem extends Component
                 $tasks =  $tasklistcontroller->tasks($tasklist['id']);
                 $tasks  = $tasks['tasks']['items'];
 
-                $completedTasks =  $tasklistcontroller->completedTasks($tasklist['id']);
-                $completedTasks  = $completedTasks['tasks']['items'];
+                // $completedTasks =  $tasklistcontroller->completedTasks($tasklist['id']);
+                // $completedTasks  = $completedTasks['tasks']['items'];
+
+                $completedTasks  = array();
 
                 
                 usort($tasks, function ($item1, $item2) {
@@ -75,7 +77,10 @@ class SortableItem extends Component
                 });
                 foreach($tasks as $task)
                 {
-                    //dd($task);
+                    if($task['status'] == 'completed')
+                    {
+                        $completedTasks[]  = $task;
+                    }
                     $this->inputsTasktitle[$task['id']] = $task['title'] ?? '';
                     $this->inputsTaskNotes[$task['id']] = $task['notes'] ?? '';
                     if (isset($task['due'])) {
