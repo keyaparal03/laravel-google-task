@@ -64,10 +64,7 @@ class SortableItem extends Component
             { 
                 $tasks =  $tasklistcontroller->tasks($tasklist['id']);
                 $tasks  = $tasks['tasks']['items'];
-
-                // $completedTasks =  $tasklistcontroller->completedTasks($tasklist['id']);
-                // $completedTasks  = $completedTasks['tasks']['items'];
-
+                
                 $completedTasks  = array();
 
                 
@@ -96,11 +93,6 @@ class SortableItem extends Component
                         $this->inputsTaskDueDate[$task['id']] ='';
                         $this->inputsTaskDueDateFormatted[$task['id']] = '';
                     }
-                    
-
-                   
-                   
-
                 }
                 //print_r($tasklist);
                 $this->listarray["title_".$tasklist['id']]  = $tasklist['title'];
@@ -403,13 +395,21 @@ class SortableItem extends Component
        
         if($this->inputsTaskDueDate[$taskId]!=''){
             $dueDate = new DateTime($this->inputsTaskDueDate[$taskId]); 
+            $taskData = [
+                'title' => $this->inputsTasktitle[$taskId],
+                'notes' => $this->inputsTaskNotes[$taskId],
+                'due' => ($dueDate->format(DateTime::RFC3339)) ?? '',
+                "id" => $taskId,
+            ];
         }
-        $taskData = [
-            'title' => $this->inputsTasktitle[$taskId],
-            'notes' => $this->inputsTaskNotes[$taskId],
-            'due' => ($dueDate->format(DateTime::RFC3339)) ?? '',
-            "id" => $taskId,
-        ];
+        else{
+            $taskData = [
+                'title' => $this->inputsTasktitle[$taskId],
+                'notes' => $this->inputsTaskNotes[$taskId],
+                'due' => '',
+                "id" => $taskId,
+            ];
+        }
     
         $accessToken = Auth::user()->access_token; // Replace with your actual access token
         $url = "https://tasks.googleapis.com/tasks/v1/lists/$taskListId/tasks/$taskId"; 
@@ -473,27 +473,10 @@ class SortableItem extends Component
             ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
         );
 
-        $this->task_name = '';
-        $tasklistcontroller = new TasklistController();
-            $tasklists =  $tasklistcontroller->lists();
-            $taskListData = array();
-            if(count($tasklists['tasklists']['items'])>0) : 
-            
-                foreach($tasklists['tasklists']['items'] as $tasklist)
-                { 
-                    $tasks =  $tasklistcontroller->tasks($tasklist['id']);
-                    $tasks  = $tasks['tasks']['items'];
-                    usort($tasks, function ($item1, $item2) {
-                        return $item1['position'] <=> $item2['position'];
-                    });
-                    $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
-                    $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
-                }
-            endif;
-            $this->showForm = false;
-            $this->showForm = true;
-        // return redirect()->to('/tasklists');
+        return redirect()->to('/tasklists');
     }
+    
+    
     public function deleteTask($taskListId,$taskId)
     {
            $access_token = getAccessToken(); // Replace with your actual access token
@@ -554,9 +537,117 @@ class SortableItem extends Component
     
         $client = new \GuzzleHttp\Client();
     
-        $taskData = [
-            'status' => 'completed',
-        ];
+        if($this->inputsTaskDueDate[$taskId]!=''){
+            $dueDate = new DateTime($this->inputsTaskDueDate[$taskId]); 
+            $taskData = [
+                'title' => $this->inputsTasktitle[$taskId],
+                'notes' => $this->inputsTaskNotes[$taskId],
+                'due' => ($dueDate->format(DateTime::RFC3339)) ?? '',
+                "id" => $taskId,
+                'status' => 'completed',
+            ];
+        }
+        else{
+            $taskData = [
+                'title' => $this->inputsTasktitle[$taskId],
+                'notes' => $this->inputsTaskNotes[$taskId],
+                'due' =>'',
+                "id" => $taskId,
+                'status' => 'completed',
+            ];
+        }
+        $response = $client->patch(
+            "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $taskData,
+            ]
+        );
+    
+        $updatedTask = json_decode($response->getBody()->getContents(), true);
+    
+        $tasklistcontroller = new TasklistController();
+        $tasklists =  $tasklistcontroller->lists();
+    
+      
+       
+
+        if(count($tasklists['tasklists']['items'])>0) : 
+        
+            foreach($tasklists['tasklists']['items'] as $tasklist)
+            { 
+                $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                $tasks  = $tasks['tasks']['items'];
+                
+                $completedTasks  = array();
+
+                
+                usort($tasks, function ($item1, $item2) {
+                   
+                    return $item1['position'] <=> $item2['position'];
+                });
+                foreach($tasks as $task)
+                {
+                    if($task['status'] == 'completed')
+                    {
+                        $completedTasks[]  = $task;
+                    }
+                    $this->inputsTasktitle[$task['id']] = $task['title'] ?? '';
+                    $this->inputsTaskNotes[$task['id']] = $task['notes'] ?? '';
+                    if (isset($task['due'])) {
+                        $dueDate = $task['due'] ?? '';
+                        $date = Carbon::parse( $dueDate );
+                        $formattedDate = $date->format('Y-m-d');
+
+                        $formattedtoDisply = $date->format('D, M j');
+
+                        $this->inputsTaskDueDate[$task['id']] = $formattedDate;
+                        $this->inputsTaskDueDateFormatted[$task['id']] = $formattedtoDisply;
+                    } else {
+                        $this->inputsTaskDueDate[$task['id']] ='';
+                        $this->inputsTaskDueDateFormatted[$task['id']] = '';
+                    }
+                }
+                //print_r($tasklist);
+                $this->listarray["title_".$tasklist['id']]  = $tasklist['title'];
+                $this->inputs[$tasklist['id']] = $tasklist['title'];
+                //dd($this->listarray);
+                $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+                $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+                $this->taskListData[$tasklist['id']]['completedTasks'] = $completedTasks;
+            }
+            return view('livewire.sortable-item');
+        endif;
+    }
+    public function changeTaskStatus( $taskListId, $taskId ){
+
+       // dd($this->inputsTasktitle[$taskId]);
+        $accessToken = getAccessToken(); // Replace with your actual access token
+    
+        $client = new \GuzzleHttp\Client();
+    
+        if($this->inputsTaskDueDate[$taskId]!=''){
+            $dueDate = new DateTime($this->inputsTaskDueDate[$taskId]); 
+            $taskData = [
+                'title' => $this->inputsTasktitle[$taskId],
+                'notes' => $this->inputsTaskNotes[$taskId],
+                'due' => ($dueDate->format(DateTime::RFC3339)) ?? '',
+                "id" => $taskId,
+                'status' => 'needsAction',
+            ];
+        }
+        else{
+            $taskData = [
+                'title' => $this->inputsTasktitle[$taskId],
+                'notes' => $this->inputsTaskNotes[$taskId],
+                'due' =>'',
+                "id" => $taskId,
+                'status' => 'needsAction',
+            ];
+        }
     
         $response = $client->patch(
             "https://tasks.googleapis.com/tasks/v1/lists/{$taskListId}/tasks/{$taskId}",
@@ -571,7 +662,55 @@ class SortableItem extends Component
     
         $updatedTask = json_decode($response->getBody()->getContents(), true);
     
-        print_r($updatedTask);
+        $tasklistcontroller = new TasklistController();
+        $tasklists =  $tasklistcontroller->lists();
+
+        if(count($tasklists['tasklists']['items'])>0) : 
+        
+            foreach($tasklists['tasklists']['items'] as $tasklist)
+            { 
+                $tasks =  $tasklistcontroller->tasks($tasklist['id']);
+                $tasks  = $tasks['tasks']['items'];
+                
+                $completedTasks  = array();
+
+                
+                usort($tasks, function ($item1, $item2) {
+                   
+                    return $item1['position'] <=> $item2['position'];
+                });
+                foreach($tasks as $task)
+                {
+                    if($task['status'] == 'completed')
+                    {
+                        $completedTasks[]  = $task;
+                    }
+                    $this->inputsTasktitle[$task['id']] = $task['title'] ?? '';
+                    $this->inputsTaskNotes[$task['id']] = $task['notes'] ?? '';
+                    if (isset($task['due'])) {
+                        $dueDate = $task['due'] ?? '';
+                        $date = Carbon::parse( $dueDate );
+                        $formattedDate = $date->format('Y-m-d');
+
+                        $formattedtoDisply = $date->format('D, M j');
+
+                        $this->inputsTaskDueDate[$task['id']] = $formattedDate;
+                        $this->inputsTaskDueDateFormatted[$task['id']] = $formattedtoDisply;
+                    } else {
+                        $this->inputsTaskDueDate[$task['id']] ='';
+                        $this->inputsTaskDueDateFormatted[$task['id']] = '';
+                    }
+                }
+                //print_r($tasklist);
+                $this->listarray["title_".$tasklist['id']]  = $tasklist['title'];
+                $this->inputs[$tasklist['id']] = $tasklist['title'];
+                //dd($this->listarray);
+                $this->taskListData[$tasklist['id']]['tasklist'] = $tasklist;
+                $this->taskListData[$tasklist['id']]['tasks'] = $tasks;
+                $this->taskListData[$tasklist['id']]['completedTasks'] = $completedTasks;
+            }
+            return view('livewire.sortable-item');
+        endif;
     }
 }
 
