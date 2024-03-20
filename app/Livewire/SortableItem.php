@@ -31,6 +31,7 @@ class SortableItem extends Component
     public $taskListData = array();
 
     public $inputValue;
+    public $addsubtasktitle;
     public $inputs = [];
     public $inputsTasktitle= [];
     public $inputsTaskNotes= [];
@@ -456,6 +457,35 @@ class SortableItem extends Component
        
         return view('livewire.sortable-item');
         
+    }
+    public function addSubTask($taskListId,$taskId){
+        $taskData = [
+            'title' => $this->addsubtasktitle,
+            // Add other task properties as needed
+        ];
+
+        $access_token = getAccessToken();
+
+        $server_output = guzzle_post(
+            "https://tasks.googleapis.com/tasks/v1/lists/".$taskListId."/tasks?parent=".$taskId,
+            $taskData,
+            ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
+        );
+
+        return redirect()->to('/tasklists');
+    }
+    public function duplicateTask($taskListId,$taskId){
+
+        $access_token = getAccessToken();
+
+        $server_output = guzzle_get("https://tasks.googleapis.com/tasks/v1/lists/".$taskListId."/tasks/".$taskId, ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]);
+
+        $server_output1 = guzzle_post(
+            "https://tasks.googleapis.com/tasks/v1/lists/".$taskListId."/tasks",
+            $server_output,
+            ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
+        );
+        return redirect()->to('/tasklists');
     }
     public function addTask($id)
     {

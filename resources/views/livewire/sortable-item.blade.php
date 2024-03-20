@@ -122,13 +122,10 @@
 
                             {{-- @if($showDiv==1 && $value['tasklist']['id']==$showDivId) --}}
                             @if($showForm)
-                            <div x-show="open">
-                                <form wire:submit.prevent="addTask('{{$value['tasklist']['id']}}')">
-                                    <input type="text" name="title"  wire:model="task_name"></br>
-                                    @error('task_name') <span class="mt-2 text-sm text-red-600" style="display: block">{{ $message }}</span> @enderror
-                                
-                                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"  @click="open = false">Add Task</button>
-                                </form>
+                            <div x-show="open" class="addtaskformdiv" @click.away="open = false">
+                                <textarea class="form-edit-task-title" wire:model="task_name" wire:blur="addTask('{{$value['tasklist']['id']}}')" placeholder="Title"></textarea>
+                                <br>
+                                @error('task_name') <span class="mt-2 text-sm text-red-600" style="display: block">{{ $message }}</span> @enderror
                             </div>
                             @endif
                             {{-- @endif --}}
@@ -144,16 +141,16 @@
                                     }
                                 ?>
                                 
-                                <li wire:key="task-{{$task['id']}}" wire:sortable-group.item="{{$task['id']}}" class="taskdiv" id="myElement" draggable="true" taskid="{{$task['id']}}" movingTasklist="{{$value['tasklist']['id']}}" movingTaskid="{{$task['id']}}" draggable="true" @dragstart="handleDragStart($event)" x-data="{ open_: false,editform_:false,focused_: false,editedtext_:false }">
+                                <li wire:key="task-{{$task['id']}}" wire:sortable-group.item="{{$task['id']}}" class="taskdiv" id="myElement" draggable="true" taskid="{{$task['id']}}" movingTasklist="{{$value['tasklist']['id']}}" movingTaskid="{{$task['id']}}" draggable="true" @dragstart="handleDragStart($event)" x-data="{ open_: false,editform_:false,focused_: false,editedtext_:false,addopen_: false }">
                                         
                                     <div class="each-task">
                                         {{-- <svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true" id="unchecked-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg> --}}
                                         <div class="complete-task" wire:click="completeTask('{{$value['tasklist']['id']}}','{{$task['id']}}')">
                                             {{-- @if($task['status']='needsAction') --}}
                                                 <span class="open-task">
-                                                    <svg class="open-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24" class=" NMm5M"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
+                                                    <svg class="open-icon" fill="white" focusable="false" width="24" height="24" viewBox="0 0 24 24" class=" NMm5M"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
                                                     <span class="done-task">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                        <svg fill="blue" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                         </svg>
                                                     </span>
@@ -168,13 +165,16 @@
                                         <div class="task-title-wrap">
                                             <p wire:sortable-group.handle  class="mt-1 text-bold leading-5 text-white" @click="open_ = true" x-show="!open_"><input type="text" class="input_as_level" wire:model="inputsTasktitle.{{$task['id']}}"/>
                                                 @if($inputsTaskNotes[$task['id']] !='')
-                                                <p class="task-description"> {{ $inputsTaskNotes[$task['id']] }}</p>
+                                                <p class="task-description" x-show="!open_"  @click="open_ = true"> {{ $inputsTaskNotes[$task['id']] }}</p>
                                                 @endif
                                                 @if($inputsTaskDueDateFormatted[$task['id']] !='')
                                                 
-                                                <p class="task-due"> {{ $inputsTaskDueDateFormatted[$task['id']] }}</p>
+                                                <p class="task-due" x-show="!open_"  @click="open_ = true"> {{ $inputsTaskDueDateFormatted[$task['id']] }}</p>
                                                 @endif
                                             </p>
+                                            <div class="addsubformdiv" @click.away="addopen_ = false" x-show="addopen_">
+                                                <textarea class="form-edit-task-title" wire:model="addsubtasktitle" wire:blur="addSubTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" placeholder="Title"></textarea>
+                                            </div>
                                             <div @click.away="open_ = false"  x-show="open_" class="editformdiv">
                                                 <textarea class="form-edit-task-title" wire:model="inputsTasktitle.{{$task['id']}}" wire:blur="editTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" ></textarea>
                                                 <textarea class="form-edit-task-title" placeholder="details" wire:model="inputsTaskNotes.{{$task['id']}}" wire:blur="editTask('{{$value['tasklist']['id']}}','{{$task['id']}}')"></textarea>
@@ -193,6 +193,8 @@
                                                 <ul x-show="open" @click.away="open = false" class="task-option absolute bg-white shadow overflow-hidden rounded w-64 mt-2 py-1 right-0 z-10">
                                                     <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"> <button wire:click="deleteTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" class="rounded-md bg-white/10 px-2.5 py-1.5 text-sm font-semibold shadow-sm ">Remove</button></a></li>
                                                     <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"  @click="open_ = true;open = false;" >Edit</a></li>
+                                                    <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"  @click="addopen_ = true;open = false;" >Add Subtask</a></li>
+                                                    <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"> <button wire:click="duplicateTask('{{$value['tasklist']['id']}}','{{$task['id']}}')" class="rounded-md bg-white/10 px-2.5 py-1.5 text-sm font-semibold shadow-sm ">Duplicate Task</button></a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -207,16 +209,16 @@
                                     @foreach ($subtask[$task['id']] as $stask)
 
 
-                                    <li wire:key="task-{{$stask['id']}}" wire:sortable-group.item="{{$stask['id']}}" class="taskdiv indent" id="myElement" draggable="true" taskid="{{$stask['id']}}" movingTasklist="{{$value['tasklist']['id']}}" movingTaskid="{{$stask['id']}}" draggable="true" @dragstart="handleDragStart($event)" x-data="{ open_: false,editform_:false,focused_: false,editedtext_:false }">
+                                    <li wire:key="task-{{$stask['id']}}" wire:sortable-group.item="{{$stask['id']}}" class="taskdiv indent" id="myElement" draggable="true" taskid="{{$stask['id']}}" movingTasklist="{{$value['tasklist']['id']}}" movingTaskid="{{$stask['id']}}" draggable="true" @dragstart="handleDragStart($event)" x-data="{ open_: false,editform_:false,focused_: false,editedtext_:false}"  x-bind:style="open_ ? 'background-color: red;' : ''">
     
                                         <div class="each-task">
                                           
                                             <div class="complete-task" wire:click="completeTask('{{$value['tasklist']['id']}}','{{$stask['id']}}')">
                                                 {{-- @if($stask['status']='needsAction') --}}
                                                     <span class="open-task">
-                                                        <svg class="open-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24" class=" NMm5M"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
+                                                        <svg class="open-icon" fill="white" focusable="false" width="24" height="24" viewBox="0 0 24 24" class=" NMm5M"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path></svg>
                                                         <span class="done-task">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="blue" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                             </svg>
                                                         </span>
@@ -231,13 +233,14 @@
                                             <div class="task-title-wrap">
                                                 <p wire:sortable-group.handle  class="mt-1 text-bold leading-5 text-white" @click="open_ = true" x-show="!open_"><input type="text" class="input_as_level" wire:model="inputsTasktitle.{{$stask['id']}}"/>
                                                     @if($inputsTaskNotes[$stask['id']] !='')
-                                                    <p class="task-description"> {{ $inputsTaskNotes[$stask['id']] }}</p>
+                                                    <p class="task-description" x-show="!open_"  @click="open_ = true"> {{ $inputsTaskNotes[$stask['id']] }}</p>
                                                     @endif
                                                     @if($inputsTaskDueDateFormatted[$stask['id']] !='')
                                                     
-                                                    <p class="task-due"> {{ $inputsTaskDueDateFormatted[$stask['id']] }}</p>
+                                                    <p class="task-due" x-show="!open_"  @click="open_ = true"> {{ $inputsTaskDueDateFormatted[$stask['id']] }}</p>
                                                     @endif
                                                 </p>
+                                              
                                                 <div @click.away="open_ = false"  x-show="open_" class="editformdiv">
                                                     <textarea class="form-edit-task-title" wire:model="inputsTasktitle.{{$stask['id']}}" wire:blur="editTask('{{$value['tasklist']['id']}}','{{$stask['id']}}')" ></textarea>
                                                     <textarea class="form-edit-task-title" placeholder="details" wire:model="inputsTaskNotes.{{$stask['id']}}" wire:blur="editTask('{{$value['tasklist']['id']}}','{{$stask['id']}}')"></textarea>
@@ -279,7 +282,7 @@
                                     <div class="complete-task" wire:click="changeTaskStatus('{{$value['tasklist']['id']}}','{{$task['id']}}')">
                                         {{-- @if($task['status']='needsAction') --}}
                                             <span class="open-task">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <svg xmlns="http://www.w3.org/2000/svg"  fill="blue" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                 </svg>
                                             </span>
@@ -348,10 +351,11 @@
     background: #292A2F;
     flex-shrink: 1;
     flex-grow: 1;
-    margin: 4px;
+    margin: 2px;
     max-width: 300px;
     min-width: 300px;
     overflow: clip;
+    padding: 0;
 }
 main {
     background: #1F2024;
@@ -384,6 +388,8 @@ li.taskdiv {
     height: 60px;
     margin-top: 15px;
     display: block;
+    padding-left: 10px;
+    padding-right: 5px;
 }
 .tasklist-option {
     right: 0 !important;
@@ -405,7 +411,7 @@ li.taskdiv {
     padding-top: 56px;
 } */
 .task-title-wrap {
-    width: 90%;
+    width: 81%;
     float: left;
 }
 main {
@@ -414,6 +420,7 @@ main {
 }
 button.text-white.add-task-btn {
     font-size: 15px;
+    margin-left: 10px;
 }
 button.add-tasklist-btn {
     display: block;
@@ -462,6 +469,7 @@ textarea.form-edit-task-title {
     border: none;
     color: #ccc;
     resize: none;
+    width: 100%;
 }
 .task-description {
     display: inline-block;
@@ -512,8 +520,16 @@ span.done-task, span.open-task {
 .completed-title {
     text-decoration: line-through;
 }
-.indent {
-    margin-left: 20px;
+li.taskdiv.indent {
+    padding-left: 20px!important;
+}
+li.taskdiv:hover {
+    background: #303138;
+}
+.titlewrap {
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 5px;
 }
  </style>
     </div>
