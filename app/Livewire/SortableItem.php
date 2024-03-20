@@ -36,6 +36,7 @@ class SortableItem extends Component
     public $inputsTaskNotes= [];
     public $inputsTaskDueDate= [];
     public $inputsTaskDueDateFormatted= [];
+    public $subtask= [];
     
     public $modalData;
 
@@ -77,6 +78,9 @@ class SortableItem extends Component
                     if($task['status'] == 'completed')
                     {
                         $completedTasks[]  = $task;
+                    }
+                    if (array_key_exists('parent', $task)) {
+                        $this->subtask[$task['parent']][]  = $task;
                     }
                     $this->inputsTasktitle[$task['id']] = $task['title'] ?? '';
                     $this->inputsTaskNotes[$task['id']] = $task['notes'] ?? '';
