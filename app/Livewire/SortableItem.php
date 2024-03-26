@@ -21,6 +21,8 @@ class SortableItem extends Component
     public $currenttasklist;
     public $listarray = [];
     public $task_name;
+    public $task_note;
+    public $task_due;
     public $showForm = true;
     public $addlisttitle;
     public $addlistdescription;
@@ -32,6 +34,9 @@ class SortableItem extends Component
 
     public $inputValue;
     public $addsubtasktitle;
+    public $addsubtasknotes;
+    public $addsubtaskdue;
+
     public $inputs = [];
     public $inputsTasktitle= [];
     public $inputsTaskNotes= [];
@@ -458,11 +463,25 @@ class SortableItem extends Component
         return view('livewire.sortable-item');
         
     }
+
     public function addSubTask($taskListId,$taskId){
-        $taskData = [
-            'title' => $this->addsubtasktitle,
-            // Add other task properties as needed
-        ];
+        
+        if($this->addsubtaskdue!='')
+        {
+            $dueDate = new DateTime($this->addsubtaskdue); 
+            $taskData = [
+                'title' => $this->addsubtasktitle,
+                'notes' => $this->addsubtasknotes,
+                'due' => ($dueDate->format(DateTime::RFC3339)) ?? '',
+                // Add other task properties as needed
+            ];
+        }else{
+            $taskData = [
+                'title' => $this->addsubtasktitle,
+                'notes' => $this->addsubtasknotes,
+            ];
+        }
+
 
         $access_token = getAccessToken();
 
@@ -487,27 +506,40 @@ class SortableItem extends Component
         );
         return redirect()->to('/tasklists');
     }
-    public function addTask($id)
+    public function addTask($taskListId)
     {
-        // $task_name = $this->listarray['title_'.$id];
+        if($this->task_name!=null || $this->task_note!=null || $this->task_due!=null)
+        {
+            
+            if($this->task_due!='')
+            {
+                $dueDate = new DateTime($this->task_due); 
+                $taskData = [
+                    'title' => $this->task_name,
+                    'notes' => $this->task_note,
+                    'due' => ($dueDate->format(DateTime::RFC3339)) ?? '',
+                    // Add other task properties as needed
+                ];
+            }else{
+                $taskData = [
+                    'title' => $this->task_name,
+                    'notes' => $this->task_note
+                ];
+            }
+            
+
+            $access_token = getAccessToken();
+
+            $server_output = guzzle_post(
+                "https://tasks.googleapis.com/tasks/v1/lists/".$taskListId."/tasks",
+                $taskData,
+                ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
+            );
+
+            return redirect()->to('/tasklists');
+
+        }
         
-        $validatedData = $this->validate();
-
-        $taskListId = $id; // Replace with your actual task list ID
-        $taskData = [
-            'title' => $this->task_name,
-            // Add other task properties as needed
-        ];
-
-        $access_token = getAccessToken();
-
-        $server_output = guzzle_post(
-            "https://tasks.googleapis.com/tasks/v1/lists/".$taskListId."/tasks",
-            $taskData,
-            ['Accept' => 'application/json', 'Authorization' => 'Bearer ' . $access_token]
-        );
-
-        return redirect()->to('/tasklists');
     }
     
     
