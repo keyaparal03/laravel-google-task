@@ -572,7 +572,7 @@ span.done-task, span.open-task {
     text-decoration: line-through;
 }
 li.taskdiv.indent {
-    padding-left: 20px!important;
+    padding-left: 35px!important;
 }
 li.taskdiv:hover {
     background: #303138;
